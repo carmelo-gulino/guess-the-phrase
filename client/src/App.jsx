@@ -3,7 +3,7 @@ import DefaultLayout from '../components/DefaultLayout'
 import { Route, Routes } from 'react-router';
 import Home from '../components/Home';
 import HomeLayout from '../components/HomeLayout';
-import LoginForm from '../components/LoginForm';
+import {LoginForm} from '../components/AuthComponent.jsx';
 import GameLayout from '../components/GameLayout';
 import GameContent from '../components/GameContent';
 import AuthContext from '../contexts/authContext.js';
@@ -12,7 +12,7 @@ import API from '../API/API.mjs';
 
 function App() {
   const [loggedIn, setLoggedIn] =  useState(false);
-  const [user, setUser] = useState();
+  const [user, setUser] = useState(null);
 
   const handleLogin = async (credentials) => {
     try {
@@ -35,14 +35,14 @@ function App() {
     <>
       <AuthContext.Provider value={{loggedIn, setLoggedIn, user, setUser}}>
         <Routes>
-          <Route element={<DefaultLayout/>}>
+          <Route element={<DefaultLayout handleLogout={handleLogout}/>}>
             <Route element={<HomeLayout/>}>
               <Route path='/' element={<Home/>}/>
               <Route path='/login' element={<LoginForm handleLogin={handleLogin} handleLogout={handleLogout}/>}/>
-              <Route path='/:userId' element={<Home/>}/>
+              <Route path='/users/:userId' element={<Home/>}/>
             </Route>
             <Route element={<GameLayout/>}>
-              <Route path='/:userId/game' element={<GameContent/>}>
+              <Route path='/users/:userId/game' element={<GameContent/>}>
                 <Route path=':gameId' element={<GameContent/>}/>
               </Route>
               <Route path='/free/game' element={<GameContent/>}>

@@ -3,23 +3,7 @@ function Game(id, phrase) {
     this.phrase = phrase;
     this.revealed = {};
     this.guessedLetters = [];
-
-    this.guessLetter = (letter) => {
-        let present = false;
-
-        [...this.phrase].forEach((c, index) => {
-            if (c.toUpperCase() === letter.toUpperCase()) {
-                this.revealed[index] = c.toUpperCase();
-                present = true; //se ce n'è anche solo una aggiorno present
-            }
-        });
-
-        if (present) {
-            this.guessedLetters.push(letter);
-        }
-        
-        return present;
-    }
+    this.timer = 60;
 
     this.getBlanks = () => {
         const positions = [];
@@ -37,7 +21,8 @@ function Game(id, phrase) {
             length: this.phrase.length,
             blanks: this.getBlanks(),
             revealed: this.revealed,
-            guessedLetters: this.guessedLetters
+            guessedLetters: this.guessedLetters,
+            timer: this.timer,
         };
         return gameJSON;
     }

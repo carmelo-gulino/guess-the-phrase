@@ -3,6 +3,8 @@ import AnswerForm from "./AnswerForm";
 import { useContext, useState } from "react";
 import GameContext from "../contexts/gameContext";
 import API from "../API/API.mjs";
+import { useNavigate } from "react-router";
+import AuthContext from "../contexts/authContext";
 
 function GameGrid() {
 
@@ -28,8 +30,8 @@ function CellContent(props) {
 
     return(
         <>
-        {gameInfo?.blanks?.includes(props.index) ? ' ' : 
-        gameInfo?.revealed?.[props.index] ? gameInfo.revealed[props.index] : ''}
+        {gameInfo?.game?.blanks?.includes(props.index) ? ' ' : 
+        gameInfo?.game?.revealed?.[props.index] ? gameInfo.game.revealed[props.index] : ''}
         </>
     )
 }
@@ -44,7 +46,7 @@ function VowelsList(props) {
                     <span className="me-2"><img height="40" src="../img/coin.png"/> x10:</span>
                     {['A', 'E', 'I', 'O', 'U'].map(l => (
                         <Button className="me-1" variant="outline-dark" 
-                        onClick={() => {props.guessLetter(gameInfo.gameId, l); props.setVowelPresent(true);}} key={`vowelsButton-${l}`}>{l}</Button>
+                        onClick={() => {props.guessLetter(gameInfo.game.gameId, l); props.setVowelPresent(true);}} key={`vowelsButton-${l}`}>{l}</Button>
                     ))}
                 </div>
             </Col>
@@ -74,7 +76,8 @@ function ConsonantsList(props) {
                         {index == 4 && <span className="me-2"><img height="40" src="../img/coin.png"/> x5:</span>}
                         {arr.map(l => (
                             <Button className="me-1" variant="outline-dark" key={`consonantsButton-${l}`} 
-                            onClick={() => props.guessLetter(gameInfo.gameId, l)}>{l}</Button>
+                            disabled={gameInfo.game.guessedLetters.includes(l)}
+                            onClick={() => props.guessLetter(gameInfo.game.gameId, l, index+1)}>{l}</Button>
                         ))}
                     </div>
                 </Col>
@@ -85,6 +88,18 @@ function ConsonantsList(props) {
 }
 
 function GameActions(props) {
+    const {gameInfo} = useContext(GameContext);
+    const {user} = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    const endGame = async () => {
+        await API.endGame(gameInfo.game.gameId);
+        if (user) {
+            navigate(`/users/${user.id}`);
+        } else {
+            navigate(`/`);
+        }
+    }
 
     return(
         <Row className="mb-3 align-items-center">
@@ -98,7 +113,7 @@ function GameActions(props) {
                 <Button variant="outline-dark" onClick={() => props.setCurrentView('answer')}>Guess the phrase</Button>
             </Col>
             <Col  className="d-flex justify-content-center">
-                <Button variant="danger outline-dark">Leave the game</Button>
+                <Button variant="danger outline-dark" onClick={() => props.endGame()}>Leave the game</Button>
             </Col>
         </Row>
     )
@@ -108,11 +123,12 @@ function GameContent() {
     const [currentView, setCurrentView] = useState('none');
     const [vowelPresent, setVowelPresent] = useState(false);
 
-    const {gameInfo, setGameInfo} = useContext(GameContext);
+    const {setGameInfo, setUser} = useContext(GameContext);
 
-    const guessLetter = async (gameId, letter) => {
-        const newGameInfo = await API.guessLetter(gameId, letter);
+    const guessLetter = async (gameId, letter, cost) => {
+        const newGameInfo = await API.guessLetter(gameId, letter, cost);
         setGameInfo(newGameInfo);
+        setUser(newGameInfo.user);
         setCurrentView('none');
     }
 

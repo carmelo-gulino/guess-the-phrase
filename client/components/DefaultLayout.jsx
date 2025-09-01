@@ -2,11 +2,11 @@ import { Container } from "react-bootstrap";
 import NavHeader from "./NavHeader";
 import { Outlet } from "react-router";
 
-function DefaultLayout() {
+function DefaultLayout(props) {
 
     return(
         <>
-        <NavHeader/>
+        <NavHeader handleLogout={props.handleLogout}/>
         <Container fluid className="mt-4">
             <Outlet/>
         </Container>

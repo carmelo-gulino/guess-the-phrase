@@ -1,4 +1,4 @@
-import { useActionState } from "react";
+import { useActionState, useContext } from "react";
 import { Alert, Button, Col, Form, Row } from "react-bootstrap";
 import { Link, useNavigate } from "react-router";
 
@@ -15,7 +15,7 @@ function LoginForm(props) {
         
         try {
             const user = await props.handleLogin(credentials);
-            navigate(`/${user.id}`);
+            navigate(`/users/${user.id}`);
         } catch (error) {
             return { error: 'Login failed. Check your credentials.' };
         }
@@ -55,4 +55,12 @@ function LoginForm(props) {
     )
 }
 
-export default LoginForm;
+function LogoutButton(props) {
+    const navigate = useNavigate();
+
+    return(
+        <Button onClick={() => {props.handleLogout(); navigate('/');}} variant="warning">Logout</Button>
+    )
+}
+
+export { LoginForm, LogoutButton };

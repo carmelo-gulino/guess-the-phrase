@@ -3,11 +3,11 @@ import express from 'express';
 import { getEasyPhrase, getPhrase, getUser } from './dao.mjs';
 import morgan from 'morgan';
 import cors from 'cors';
-import Game from './models/game.mjs';
 
 import passport from 'passport';
 import LocalStrategy from 'passport-local';
 import session from 'express-session';
+import { guessLetter, startGame } from './gameLogic.js';
 
 // init express
 const app = new express();
@@ -57,39 +57,50 @@ app.use(session({
 
 app.use(passport.authenticate('session'));
 
-//POST /api/startGame
-app.post('/api/startGame', async (req, res) => {
+app.post('/api/games/start', async (req, res) => {
   let phrase = '';
+
   try {
+
     if (req.body.mode === 'easy') {
       phrase = await getEasyPhrase();
     } else {
       phrase = await getPhrase();
     }
-    const newId = games.size + 1;
-    const newGame = new Game(newId, phrase);
-    games.set(newGame.id, newGame);  //creo un oggetto Game e lo memorizzo nel server
-    res.json(newGame.gameToJSON());
-  } catch (err) {
-    res.status(500).end();
-  }
-});
 
-app.post('/api/game/:gameId/guess', async (req, res) => {
-  try {
-    const game = games.get(parseInt(req.params.gameId));
-    const letter = req.body.letter;
+    const newGame = startGame(games.size, phrase);
+    games.set(newGame.id, newGame.game);
 
-    if (game.guessLetter(letter)) {
-      res.json(game.gameToJSON());
-    } else {
-      //return res.status(200).json({ message: "Letter not in phrase", game: game.gameToJSON() });
-      res.json(game.gameToJSON());
-    }
+    res.json({game: newGame.gameToJSON(), user: req.user});
+
   } catch (error) {
     res.status(500).end();
   }
 });
+
+app.post('/api/games/:gameId/guess', async (req, res) => {
+  try {
+    const game = games.get(parseInt(req.params.gameId));
+    const letter = req.body.letter;
+    const cost = req.body.cost;
+    const user = req.user;
+
+    const gameInfoObj = guessLetter(game, letter, cost, user);
+    res.json(gameInfoObj);
+  } catch (error) {
+    res.status(500).end();
+  }
+});
+
+app.delete('/api/games/:gameId', async (req, res) => {
+  try {
+    const gameId = req.params.gameId;
+    games.delete(gameId);
+    res.status(204).end();
+  } catch (err) {
+    res.status(500).end();
+  }
+})
 
 // POST /api/sessions
 app.post('/api/sessions', passport.authenticate('local'), function(req, res) {

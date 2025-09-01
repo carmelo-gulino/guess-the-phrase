@@ -1,13 +1,16 @@
 const SERVER_URL = "http://localhost:3001";
 
 const startGame = async (mode) => {
-    const response = await fetch(SERVER_URL + '/api/startGame', {
+    
+    const response = await fetch(SERVER_URL + '/api/games/start', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({mode}),
     });
+
     if (response.ok) {
         const gameInfoJSON = await response.json();
         return gameInfoJSON;
@@ -16,19 +19,35 @@ const startGame = async (mode) => {
     }
 }
 
-const guessLetter = async (gameId, letter) => {
-    const response = await fetch(SERVER_URL  + `/api/game/${gameId}/guess`, {
+const guessLetter = async (gameId, letter, cost) => {
+    const response = await fetch(SERVER_URL  + `/api/games/${gameId}/guess`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({letter}),
+        credentials: 'include',
+        body: JSON.stringify({letter, cost}),
     });
     if (response.ok) {
         const gameInfoJSON = await response.json();
         return gameInfoJSON;
     } else {
         throw new Error("Internal Server Error");   //TODO -> gestione errori       
+    }
+}
+
+const endGame = async (gameId) => {
+    
+    const response = await fetch(SERVER_URL + `/api/games/${gameId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+    });
+
+    if (!response.ok) {
+        throw new Error("Internal Server Error");
     }
 }
 
@@ -60,5 +79,5 @@ const logOut = async() => {
     return null;
 }
 
-const API = { startGame, guessLetter, logIn, logOut };
+const API = { startGame, guessLetter, endGame, logIn, logOut };
 export default API;

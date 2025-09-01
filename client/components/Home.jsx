@@ -11,9 +11,9 @@ function Home() {
         <Row><Col><h1>{loggedIn? `Welcome, ${user.username}!` : 'Welcome!'}</h1></Col></Row>
         <Row><Col>{loggedIn? `You have ${user.coins} coins.` : 'You are not logged in.'}</Col></Row>
         <Row><Col>
-            {loggedIn && <Button as={Link} disabled={user.coins == 0} to={`/${user.id}/game`}>Play now</Button>}
-            {!loggedIn && <Button as={Link} to={`/free/game`}>Play now (easy mode)</Button>} or 
-            {!loggedIn && <Button as={Link} to="/login">Log in</Button>}
+            {loggedIn && <Button as={Link} disabled={user.coins == 0} to={`/users/${user.id}/game`}>Play now</Button>}
+            {!loggedIn && <Button as={Link} variant="success" to={`/free/game`}>Play now (easy mode)</Button>} or 
+            {!loggedIn && <Button as={Link} variant="warning" to="/login">Log in</Button>}
             </Col></Row>
         </>
     )
