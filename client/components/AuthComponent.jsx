@@ -1,11 +1,13 @@
 import { useActionState, useContext } from "react";
-import { Alert, Button, Col, Form, Row } from "react-bootstrap";
+import { Alert, Button, Card, Col, Form, Row } from "react-bootstrap";
 import { Link, useNavigate } from "react-router";
+import AuthContext from "../contexts/authContext";
 
-function LoginForm(props) {
+function LoginForm() {
 
     const [state, formAction, isPending] = useActionState(loginFunction, {username: '', password: ''});
     const navigate = useNavigate();
+    const { handleLogin } = useContext(AuthContext);
 
     async function loginFunction(prevState, formData) {
         const credentials = {
@@ -14,17 +16,17 @@ function LoginForm(props) {
         };
         
         try {
-            const user = await props.handleLogin(credentials);
+            const user = await handleLogin(credentials);
             navigate(`/users/${user.id}`);
         } catch (error) {
-            return { error: 'Login failed. Check your credentials.' };
+            return { error: 'Wrong username or password.' };
         }
     }
 
     return(
         <>
         { isPending && <Alert variant="warning">Please, wait for the server's response...</Alert> }
-        <Row className="align-items-center"><Col><h1>Log in</h1></Col></Row>
+        <Row className="align-items-center"><Col><h1 className="fw-bold">Log in</h1></Col></Row>
         <Form action={formAction}>
             <Row>
                 <Col>
@@ -57,9 +59,10 @@ function LoginForm(props) {
 
 function LogoutButton(props) {
     const navigate = useNavigate();
+    const { handleLogout } = useContext(AuthContext);
 
     return(
-        <Button onClick={() => {props.handleLogout(); navigate('/');}} variant="warning">Logout</Button>
+        <Button onClick={() => {handleLogout(); navigate('/');}} className="btn-lg" variant="warning">Logout</Button>
     )
 }
 

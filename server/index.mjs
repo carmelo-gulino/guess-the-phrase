@@ -1,13 +1,13 @@
 // imports
 import express from 'express';
-import { getEasyPhrase, getPhrase, getUser } from './dao.mjs';
+import { getEasyPhrase, getPhrase, getUser, updateCoins } from './dao.mjs';
 import morgan from 'morgan';
 import cors from 'cors';
 
 import passport from 'passport';
 import LocalStrategy from 'passport-local';
 import session from 'express-session';
-import { guessLetter, startGame } from './gameLogic.js';
+import { guessLetter, startGame } from './gameLogic.mjs';
 
 // init express
 const app = new express();
@@ -69,7 +69,7 @@ app.post('/api/games/start', async (req, res) => {
     }
 
     const newGame = startGame(games.size, phrase);
-    games.set(newGame.id, newGame.game);
+    games.set(newGame.id, newGame);
 
     res.json({game: newGame.gameToJSON(), user: req.user});
 
@@ -86,6 +86,7 @@ app.post('/api/games/:gameId/guess', async (req, res) => {
     const user = req.user;
 
     const gameInfoObj = guessLetter(game, letter, cost, user);
+
     res.json(gameInfoObj);
   } catch (error) {
     res.status(500).end();
@@ -100,7 +101,19 @@ app.delete('/api/games/:gameId', async (req, res) => {
   } catch (err) {
     res.status(500).end();
   }
-})
+});
+
+app.patch('/api/users/:userId/coins', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const coins = req.body.coins;
+
+    await updateCoins(userId, coins);
+    res.status(200).end();
+  } catch (err) {
+    res.status(500).end();
+  }
+});
 
 // POST /api/sessions
 app.post('/api/sessions', passport.authenticate('local'), function(req, res) {

@@ -11,7 +11,7 @@ function RightSidebar() {
             <Col><img height="100" src="../img/coin.png"/></Col>
         </Row>
         <Row className="align-items-center">
-            <Col>{loggedIn ? user.coins+' coins' : 'You are playing in easy mode'}</Col>
+            <Col>{loggedIn ? `${user.coins} coins` : 'You are playing in easy mode'}</Col>
         </Row>
         </>
     )

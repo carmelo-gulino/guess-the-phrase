@@ -3,7 +3,6 @@ function Game(id, phrase) {
     this.phrase = phrase;
     this.revealed = {};
     this.guessedLetters = [];
-    this.timer = 60;
 
     this.getBlanks = () => {
         const positions = [];
@@ -22,7 +21,6 @@ function Game(id, phrase) {
             blanks: this.getBlanks(),
             revealed: this.revealed,
             guessedLetters: this.guessedLetters,
-            timer: this.timer,
         };
         return gameJSON;
     }

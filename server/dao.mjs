@@ -57,3 +57,16 @@ export const getUser = (username, password) => {
         });
     });
 }
+
+export const updateCoins = (userId, coins) => {
+    return new Promise((resolve, reject) => {
+        const sql = 'UPDATE users SET coins = ? WHERE id = ?';
+        db.run(sql, [coins, userId], function(err) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(this.changes);
+            }
+        })
+    })
+}

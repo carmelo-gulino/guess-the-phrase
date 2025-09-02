@@ -1,10 +1,65 @@
-import { Button, Col, Row, Table } from "react-bootstrap";
+import { Alert, Button, Col, Row, Table } from "react-bootstrap";
 import AnswerForm from "./AnswerForm";
 import { useContext, useState } from "react";
 import GameContext from "../contexts/gameContext";
-import API from "../API/API.mjs";
-import { useNavigate } from "react-router";
 import AuthContext from "../contexts/authContext";
+
+function GameContent() {
+    const [currentView, setCurrentView] = useState('none');
+    const [vowelPresent, setVowelPresent] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
+
+    const { loggedIn } = useContext(AuthContext);
+    const { gameInfo } = useContext(GameContext);
+
+    return (
+        <>
+        <GameActions currentView={currentView} setCurrentView={setCurrentView} setVowelPresent={setVowelPresent} vowelPresent={vowelPresent}/>
+        {(loggedIn && (currentView === 'consonants' || currentView === 'vowels')) && <Alert className="text-center" variant="warning">If the letter is not present, its cost will be doubled!</Alert>}
+        <Row className="align-items-center">
+            <Col><GameGrid/></Col>
+        </Row>
+        <Row className="align-items-center">
+            <Col>
+                {(showAlert && gameInfo?.correct === true) && <Alert dismissible onClose={() => setShowAlert(false)} variant="success">Correct!</Alert>}
+                {(showAlert && gameInfo?.correct === false) && <Alert dismissible onClose={() => setShowAlert(false)} variant="danger">Wrong!</Alert>}
+                {currentView === 'answer' && <AnswerForm setShowAlert={setShowAlert} setCurrentView={setCurrentView}/>}
+                {currentView === 'consonants' && <ConsonantsList setShowAlert={setShowAlert} setCurrentView={setCurrentView}/>}
+                {currentView === 'vowels' && <VowelsList setCurrentView={setCurrentView} setVowelPresent={setVowelPresent}/>}
+            </Col>
+        </Row>
+        </>
+    )
+}
+
+function GameActions(props) {
+    const { endGame } = useContext(GameContext);
+
+    const goBackBtn = <Button onClick={() => props.setCurrentView('none')} variant="secondary">Go back</Button>;
+    
+    return(
+        <Row className="mb-3 align-items-center">
+            <Col className="d-flex justify-content-center">
+                {props.currentView === 'consonants' ?
+                    goBackBtn
+                    : <Button variant="outline-dark" onClick={() => props.setCurrentView('consonants')}>Guess a consonant</Button>}
+            </Col>
+            <Col  className="d-flex justify-content-center">
+                {props.currentView === 'vowels' ?
+                    goBackBtn
+                    : <Button variant="outline-dark" disabled={props.vowelPresent} onClick={() => props.setCurrentView('vowels')}>Guess a vowel</Button>}
+            </Col>
+            <Col  className="d-flex justify-content-center">
+                    {props.currentView === 'answer' ? 
+                        goBackBtn
+                        : <Button variant="outline-dark" onClick={() => props.setCurrentView('answer')}>Guess the phrase</Button>}
+            </Col>
+            <Col  className="d-flex justify-content-center">
+                <Button variant="danger" onClick={() => endGame()}>Leave the game</Button>
+            </Col>
+        </Row>
+    )
+}
 
 function GameGrid() {
 
@@ -37,7 +92,7 @@ function CellContent(props) {
 }
 
 function VowelsList(props) {
-    const {gameInfo} = useContext(GameContext);
+    const { gameInfo, guessLetter } = useContext(GameContext);
     
     return(
         <Row>
@@ -46,7 +101,7 @@ function VowelsList(props) {
                     <span className="me-2"><img height="40" src="../img/coin.png"/> x10:</span>
                     {['A', 'E', 'I', 'O', 'U'].map(l => (
                         <Button className="me-1" variant="outline-dark" 
-                        onClick={() => {props.guessLetter(gameInfo.game.gameId, l); props.setVowelPresent(true);}} key={`vowelsButton-${l}`}>{l}</Button>
+                        onClick={() => {guessLetter(gameInfo.game.gameId, l); props.setVowelPresent(true); props.setCurrentView('none'); props.setShowAlert(true);}} key={`vowelsButton-${l}`}>{l}</Button>
                     ))}
                 </div>
             </Col>
@@ -55,7 +110,7 @@ function VowelsList(props) {
 }
 
 function ConsonantsList(props) {
-    const {gameInfo} = useContext(GameContext);
+    const { gameInfo, guessLetter } = useContext(GameContext);
 
     return(
         <>
@@ -77,74 +132,12 @@ function ConsonantsList(props) {
                         {arr.map(l => (
                             <Button className="me-1" variant="outline-dark" key={`consonantsButton-${l}`} 
                             disabled={gameInfo.game.guessedLetters.includes(l)}
-                            onClick={() => props.guessLetter(gameInfo.game.gameId, l, index+1)}>{l}</Button>
+                            onClick={() => {guessLetter(gameInfo.game.gameId, l, index+1); props.setCurrentView('none'); props.setShowAlert(true); }}>{l}</Button>
                         ))}
                     </div>
                 </Col>
             </Row>
         ))}
-        </>
-    )
-}
-
-function GameActions(props) {
-    const {gameInfo} = useContext(GameContext);
-    const {user} = useContext(AuthContext);
-    const navigate = useNavigate();
-
-    const endGame = async () => {
-        await API.endGame(gameInfo.game.gameId);
-        if (user) {
-            navigate(`/users/${user.id}`);
-        } else {
-            navigate(`/`);
-        }
-    }
-
-    return(
-        <Row className="mb-3 align-items-center">
-            <Col className="d-flex justify-content-center">
-                <Button variant="outline-dark" onClick={() => props.setCurrentView('consonants')}>Guess a consonant</Button>
-            </Col>
-            <Col  className="d-flex justify-content-center">
-                <Button variant="outline-dark" disabled={props.vowelPresent} onClick={() => props.setCurrentView('vowels')}>Guess a vowel</Button>
-            </Col>
-            <Col  className="d-flex justify-content-center">
-                <Button variant="outline-dark" onClick={() => props.setCurrentView('answer')}>Guess the phrase</Button>
-            </Col>
-            <Col  className="d-flex justify-content-center">
-                <Button variant="danger outline-dark" onClick={() => props.endGame()}>Leave the game</Button>
-            </Col>
-        </Row>
-    )
-}
-
-function GameContent() {
-    const [currentView, setCurrentView] = useState('none');
-    const [vowelPresent, setVowelPresent] = useState(false);
-
-    const {setGameInfo, setUser} = useContext(GameContext);
-
-    const guessLetter = async (gameId, letter, cost) => {
-        const newGameInfo = await API.guessLetter(gameId, letter, cost);
-        setGameInfo(newGameInfo);
-        setUser(newGameInfo.user);
-        setCurrentView('none');
-    }
-
-    return (
-        <>
-        <GameActions setCurrentView={setCurrentView} setVowelPresent={setVowelPresent} vowelPresent={vowelPresent}/>
-        <Row className="align-items-center">
-            <Col><GameGrid/></Col>
-        </Row>
-        <Row className="align-items-center">
-            <Col>
-                {currentView === 'answer' && <AnswerForm setCurrentView={setCurrentView}/>}
-                {currentView === 'consonants' && <ConsonantsList guessLetter={guessLetter}/>}
-                {currentView === 'vowels' && <VowelsList guessLetter={guessLetter} setVowelPresent={setVowelPresent}/>}
-            </Col>
-        </Row>
         </>
     )
 }

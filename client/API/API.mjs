@@ -51,6 +51,21 @@ const endGame = async (gameId) => {
     }
 }
 
+const updateCoins = async (userId, coins) => {
+    const response = await fetch(SERVER_URL  + `/api/users/${userId}/coins`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({coins}),
+    });
+
+    if (!response.ok) {
+        throw new Error("Internal Server Error");
+    }
+}
+
 const logIn = async (credentials) => {
     const response = await fetch(SERVER_URL + '/api/sessions', {
         method: 'POST',
@@ -79,5 +94,5 @@ const logOut = async() => {
     return null;
 }
 
-const API = { startGame, guessLetter, endGame, logIn, logOut };
+const API = { startGame, guessLetter, updateCoins, endGame, logIn, logOut };
 export default API;

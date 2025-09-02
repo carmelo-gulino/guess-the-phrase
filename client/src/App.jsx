@@ -9,6 +9,7 @@ import GameContent from '../components/GameContent';
 import AuthContext from '../contexts/authContext.js';
 import { useState } from 'react';
 import API from '../API/API.mjs';
+import NotFound from '../components/NotFound.jsx';
 
 function App() {
   const [loggedIn, setLoggedIn] =  useState(false);
@@ -33,12 +34,12 @@ function App() {
 
   return (
     <>
-      <AuthContext.Provider value={{loggedIn, setLoggedIn, user, setUser}}>
+      <AuthContext.Provider value={{loggedIn, setLoggedIn, user, setUser, handleLogin, handleLogout}}>
         <Routes>
-          <Route element={<DefaultLayout handleLogout={handleLogout}/>}>
+          <Route element={<DefaultLayout/>}>
             <Route element={<HomeLayout/>}>
               <Route path='/' element={<Home/>}/>
-              <Route path='/login' element={<LoginForm handleLogin={handleLogin} handleLogout={handleLogout}/>}/>
+              <Route path='/login' element={<LoginForm/>}/>
               <Route path='/users/:userId' element={<Home/>}/>
             </Route>
             <Route element={<GameLayout/>}>
@@ -49,6 +50,7 @@ function App() {
                 <Route path=':gameId' element={<GameContent/>}/>
               </Route>
             </Route>
+            <Route path='*' element={<NotFound/>}/>
           </Route>
         </Routes>
       </AuthContext.Provider>

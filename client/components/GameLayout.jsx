@@ -7,13 +7,15 @@ import GameContext from "../contexts/gameContext.js"
 import API from "../API/API.mjs";
 import { useContext } from "react";
 import AuthContext from "../contexts/authContext.js";
-import { decreaseTimer } from "../../server/gameLogic.js";
+import { decreaseTimer } from "../../server/gameLogic.mjs";
 
 function GameLayout() {
-    const {user} = useContext(AuthContext);
+    const { user, setUser } = useContext(AuthContext);
+
     const navigate = useNavigate();
 
-    const [gameInfo, setGameInfo] = useState({game: null, user: user});
+    const [gameInfo, setGameInfo] = useState({game: null, user: user, correct: null});
+    const [timer, setTimer] = useState(60);
     
 
     useEffect(() => {
@@ -29,30 +31,53 @@ function GameLayout() {
             navigate(`/users/${user.id}/game/${gameInfo.game.gameId}`)
             : navigate(`/free/game/${gameInfo.game.gameId}`);
            
-            intervalId = setInterval(() => {
-                const newGameInfo = decreaseTimer(gameInfo);
-                setGameInfo(newGameInfo);
-            }, 1000);
+            /*intervalId = setInterval(() => {
+                const newTimer = decreaseTimer(timer);
+                setTimer(newTimer);
+                console.log(newTimer);
+            }, 1000);*/
         }
         startGame();
-        return () => {
-            if (intervalId) clearInterval(intervalId);
-        };
+        /*return () => {
+            if (intervalId) clearInterval(intervalId);  //quando smonto il componente disattivo il timer
+            console.log("timer fermato");
+        };*/
     }, []);
 
-    const endGame = () => {
+    const guessLetter = async (gameId, letter, cost) => {
+        const newGameInfo = await API.guessLetter(gameId, letter, cost);
+        setGameInfo(newGameInfo);
+        setUser(newGameInfo.user);
+    }
+
+    const guessPhrase = async (gameId, phrase) => {
         
+    }
+
+    const endGame = async () => {
+        await API.endGame(gameInfo.game.gameId);
+        await API.updateCoins(user?.id, user?.coins);
+
+        setGameInfo({game: null, user: user, correct: null});
+
+        user ? 
+            navigate(`/users/${user.id}`)
+            : navigate(`/`);
     }
     
     return (
         <Container fluid>
-            <GameContext.Provider value={{gameInfo, setGameInfo}}>
-                <Row className="align-items-center">
-                    <Col lg={2}><LeftSidebar/></Col>
-                    <Col lg={8}><Outlet/></Col>
-                    <Col lg={2}><RightSidebar/></Col>
-                </Row>
-            </GameContext.Provider>
+            <Row className="align-items-center">
+                <Col lg={2}><LeftSidebar timer={timer}/></Col>
+                <Col lg={8}>
+                <GameContext.Provider value={{gameInfo, setGameInfo, guessLetter, guessPhrase, endGame}}>
+                    <Outlet/>
+                </GameContext.Provider>
+                </Col>
+                <Col lg={2}><RightSidebar/></Col>
+            </Row>
+            
+                
         </Container>
     )
 }
