@@ -4,9 +4,9 @@ import { Link } from "react-router";
 import { LogoutButton } from "./AuthComponent.jsx";
 import AuthContext from "../contexts/authContext";
 
-function Home(props) {
+function Home() {
     const {loggedIn, user} = useContext(AuthContext);
-
+    
     const welcomeMessage = loggedIn ? `Welcome, ${user.username}!` : 'Welcome!';
     const coinsMessage = loggedIn ? `You have ${user.coins} coins.` : 'You are not logged in.'
     

@@ -1,11 +1,12 @@
+import "bootstrap-icons/font/bootstrap-icons.css";
 import { Col, Row } from "react-bootstrap";
 import { Outlet } from "react-router";
 
 function HomeLayout() {
     return(
         <>
-        <Row className="justify-content-between align-items-center">
-            <Col className="align-items-center"><img src="../img/qmark2.png" alt="qmark" ></img></Col>
+        <Row className="align-items-center">
+            <Col className="d-flex justify-content-center align-items-center"><i className="bi bi-patch-question text-info" style={{ fontSize: "15rem" }}></i></Col>
             <Col><Outlet/></Col>
         </Row>
         </>

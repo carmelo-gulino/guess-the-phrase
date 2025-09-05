@@ -3,11 +3,11 @@ import LeftSidebar from "./LeftSidebar";
 import RightSidebar from "./RightSidebar";
 import { Outlet, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
-import GameContext from "../contexts/gameContext.js"
-import API from "../API/API.mjs";
+import GameContext from "../../contexts/gameContext.js"
+import API from "../../API/API.mjs";
 import { useContext } from "react";
-import AuthContext from "../contexts/authContext.js";
-import { decreaseTimer } from "../../server/gameLogic.mjs";
+import AuthContext from "../../contexts/authContext.js";
+import { decreaseTimer } from "../../../server/gameLogic.mjs";
 
 function GameLayout() {
     const { user, setUser } = useContext(AuthContext);

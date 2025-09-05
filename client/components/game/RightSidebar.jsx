@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { Col, Row } from "react-bootstrap";
-import AuthContext from "../contexts/authContext";
+import AuthContext from "../../contexts/authContext";
 
 function RightSidebar() {
     const {loggedIn, user} = useContext(AuthContext);

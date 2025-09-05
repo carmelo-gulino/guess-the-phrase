@@ -6,7 +6,7 @@ function LeftSidebar(props) {
     return(
         <>
         <Row className="align-items-center">
-            <Col className="text-center"><strong>{props.timer}</strong></Col>
+            <Col className="text-center"><h2>{props.timer}</h2></Col>
         </Row>
         </>
     )
