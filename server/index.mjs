@@ -7,7 +7,8 @@ import cors from 'cors';
 import passport from 'passport';
 import LocalStrategy from 'passport-local';
 import session from 'express-session';
-import { guessLetter, startGame } from './gameLogic.mjs';
+import { guessLetter, guessPhrase, startGame } from './gameLogic.mjs';
+import { check, validationResult } from 'express-validator';
 
 // init express
 const app = new express();
@@ -26,6 +27,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+/** PASSPORT CONFIGURATION */
 passport.use(new LocalStrategy(async function verify(username, password, cb) {
   const user = await getUser(username, password);
   if (!user) {
@@ -57,6 +59,9 @@ app.use(session({
 
 app.use(passport.authenticate('session'));
 
+/** ENDPOINTS */
+
+//starting a game
 app.post('/api/games/start', async (req, res) => {
   let phrase = '';
 
@@ -71,31 +76,100 @@ app.post('/api/games/start', async (req, res) => {
     const newGame = startGame(games.size, phrase);
     games.set(newGame.id, newGame);
 
-    res.json({game: newGame.gameToJSON(), user: req.user});
+    const gameInfo = {
+      game: newGame.gameToJSON(),
+      user: req.user,
+      present: null,
+      correct: null,
+      status: 'playing'
+    }
+
+    res.json(gameInfo);
 
   } catch (error) {
     res.status(500).end();
   }
 });
 
-app.post('/api/games/:gameId/guess', async (req, res) => {
+//guessing a letter
+app.post('/api/games/:gameId/letter', async (req, res) => {
   try {
     const game = games.get(parseInt(req.params.gameId));
     const letter = req.body.letter;
     const cost = req.body.cost;
     const user = req.user;
 
-    const gameInfoObj = guessLetter(game, letter, cost, user);
+    const mode = user ? 'normal' : 'easy';
 
-    res.json(gameInfoObj);
+    const obj = guessLetter(game, letter, cost, mode);
+
+    if (user) {
+      user.coins += obj.coinDelta;
+      if (user.coins < 0) {
+        user.coins = 0;
+      }
+      console.log(user);
+    }
+
+    const gameInfo = {
+      game: obj.game,
+      user,
+      present: obj.present,
+      correct: null,
+      status: user?.coins === 0 ? 'ended' : 'playing'
+    }
+
+    res.json(gameInfo);
+
   } catch (error) {
     res.status(500).end();
   }
 });
 
+//guessing a phrase
+app.post('/api/games/:gameId/phrase', [
+  check('phrase').notEmpty(),
+],async (req, res) => {
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json();
+  }
+
+  try {
+    const game = games.get(parseInt(req.params.gameId));
+    const phrase = req.body.phrase;
+    const user = req.user;
+
+    const mode = user ? 'normal' : 'easy';
+
+    const obj = guessPhrase(game, phrase, mode);
+
+    if (obj.correct && user) {
+      user.coins += obj.coinDelta;
+      console.log(user);
+    }
+
+
+    const gameInfo = {
+      game: obj.game,
+      user,
+      present: null,
+      correct: obj.correct,
+      status: obj.correct ? 'won' : 'playing'
+    }
+
+    res.json(gameInfo);
+
+  } catch (err) {
+    res.status(500).end();
+  }
+});
+
+//deleting a game
 app.delete('/api/games/:gameId', async (req, res) => {
   try {
-    const gameId = req.params.gameId;
+    const gameId = parseInt(req.params.gameId);
     games.delete(gameId);
     res.status(204).end();
   } catch (err) {
@@ -103,6 +177,7 @@ app.delete('/api/games/:gameId', async (req, res) => {
   }
 });
 
+//updating user coins
 app.patch('/api/users/:userId/coins', async (req, res) => {
   try {
     const userId = req.params.userId;

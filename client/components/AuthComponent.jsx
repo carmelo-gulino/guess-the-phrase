@@ -14,6 +14,10 @@ function LoginForm() {
             username: formData.get('username'),
             password: formData.get('password'),
         };
+
+        if (credentials.username.trim() === '' || credentials.password.trim() === '') {
+            return {error: "The fields can't be empty."}
+        }
         
         try {
             const user = await handleLogin(credentials);

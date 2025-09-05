@@ -7,7 +7,6 @@ import AuthContext from "../contexts/authContext";
 function GameContent() {
     const [currentView, setCurrentView] = useState('none');
     const [vowelPresent, setVowelPresent] = useState(false);
-    const [showAlert, setShowAlert] = useState(false);
 
     const { loggedIn } = useContext(AuthContext);
     const { gameInfo } = useContext(GameContext);
@@ -21,10 +20,10 @@ function GameContent() {
         </Row>
         <Row className="align-items-center">
             <Col>
-                {(showAlert && gameInfo?.correct === true) && <Alert dismissible onClose={() => setShowAlert(false)} variant="success">Correct!</Alert>}
-                {(showAlert && gameInfo?.correct === false) && <Alert dismissible onClose={() => setShowAlert(false)} variant="danger">Wrong!</Alert>}
-                {currentView === 'answer' && <AnswerForm setShowAlert={setShowAlert} setCurrentView={setCurrentView}/>}
-                {currentView === 'consonants' && <ConsonantsList setShowAlert={setShowAlert} setCurrentView={setCurrentView}/>}
+                {gameInfo?.present ? <Alert dismissible variant="success">Ok!</Alert> : <Alert dismissible variant="danger">Nope!</Alert>}
+                {gameInfo?.correct === false && <Alert dismissible variant="danger">The phrase is not correct!</Alert>}
+                {currentView === 'answer' && <AnswerForm setCurrentView={setCurrentView}/>}
+                {currentView === 'consonants' && <ConsonantsList setCurrentView={setCurrentView}/>}
                 {currentView === 'vowels' && <VowelsList setCurrentView={setCurrentView} setVowelPresent={setVowelPresent}/>}
             </Col>
         </Row>
@@ -101,7 +100,7 @@ function VowelsList(props) {
                     <span className="me-2"><img height="40" src="../img/coin.png"/> x10:</span>
                     {['A', 'E', 'I', 'O', 'U'].map(l => (
                         <Button className="me-1" variant="outline-dark" 
-                        onClick={() => {guessLetter(gameInfo.game.gameId, l); props.setVowelPresent(true); props.setCurrentView('none'); props.setShowAlert(true);}} key={`vowelsButton-${l}`}>{l}</Button>
+                        onClick={() => {guessLetter(gameInfo.game.gameId, l, 10); props.setVowelPresent(true); props.setCurrentView('none');}} key={`vowelsButton-${l}`}>{l}</Button>
                     ))}
                 </div>
             </Col>
@@ -132,7 +131,7 @@ function ConsonantsList(props) {
                         {arr.map(l => (
                             <Button className="me-1" variant="outline-dark" key={`consonantsButton-${l}`} 
                             disabled={gameInfo.game.guessedLetters.includes(l)}
-                            onClick={() => {guessLetter(gameInfo.game.gameId, l, index+1); props.setCurrentView('none'); props.setShowAlert(true); }}>{l}</Button>
+                            onClick={() => {guessLetter(gameInfo.game.gameId, l, index+1); props.setCurrentView('none'); }}>{l}</Button>
                         ))}
                     </div>
                 </Col>

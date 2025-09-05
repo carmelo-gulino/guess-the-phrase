@@ -20,7 +20,7 @@ const startGame = async (mode) => {
 }
 
 const guessLetter = async (gameId, letter, cost) => {
-    const response = await fetch(SERVER_URL  + `/api/games/${gameId}/guess`, {
+    const response = await fetch(SERVER_URL  + `/api/games/${gameId}/letter`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -28,6 +28,26 @@ const guessLetter = async (gameId, letter, cost) => {
         credentials: 'include',
         body: JSON.stringify({letter, cost}),
     });
+
+    if (response.ok) {
+        const gameInfoJSON = await response.json();
+        return gameInfoJSON;
+    } else {
+        throw new Error("Internal Server Error");   //TODO -> gestione errori       
+    }
+}
+
+const guessPhrase = async (gameId, phrase) => {
+
+    const response = await fetch(SERVER_URL + `/api/games/${gameId}/phrase`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(phrase),
+    });
+
     if (response.ok) {
         const gameInfoJSON = await response.json();
         return gameInfoJSON;
@@ -94,5 +114,5 @@ const logOut = async() => {
     return null;
 }
 
-const API = { startGame, guessLetter, updateCoins, endGame, logIn, logOut };
+const API = { startGame, guessLetter, guessPhrase, updateCoins, endGame, logIn, logOut };
 export default API;

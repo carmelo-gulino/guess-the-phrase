@@ -5,41 +5,54 @@ export function startGame(size, phrase) {
     return new Game(newId, phrase);
 }
 
-export function guessLetter(game, letter, cost, user) {
-    let correct = false;
+export function guessLetter(game, letter, cost, mode) {
+    let present = false;
+    let coinDelta = null;
 
     [...game.phrase].forEach((c, index) => {
         if (c.toUpperCase() === letter.toUpperCase()) {
             game.revealed[index] = c.toUpperCase();
-            correct = true; //se ce n'è anche solo una aggiorno correct
+            present = true; //se ce n'è anche solo una aggiorno present
         }
     });
 
     game.guessedLetters.push(letter);
 
-    if (user) {
-        if (correct) {
-            user.coins -= cost;
+    if (mode === 'normal') {
+        if (present) {
+            coinDelta = -cost;
         } else {
-            user.coins -= 2*cost;
+            coinDelta = -2*cost;
         }
+    }
+
+    return {
+        game: game.gameToJSON(),
+        present,
+        coinDelta
+    }
+}
+
+export function guessPhrase(game, phrase, mode) {
+    let correct;
+    let coinDelta = null;
+
+    if (game.phrase.toUpperCase() === phrase.toUpperCase()) {
+        correct = true;
+        if (mode === 'normal') {
+            coinDelta = 100;
+        }
+    } else {
+        correct = false;
     }
 
     const obj = {
         game: game.gameToJSON(),
-        user,
-        correct
+        correct,
+        coinDelta
     }
 
     return obj;
-}
-
-export function guessPhrase(game, phrase) {
-    if (game.phrase.toUpperCase() === phrase.toUpperCase()) {
-        return true;
-    } else {
-        return false;
-    }
 }
 
 export function decreaseTimer(timer) {

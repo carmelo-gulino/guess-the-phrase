@@ -14,7 +14,9 @@ function GameLayout() {
 
     const navigate = useNavigate();
 
-    const [gameInfo, setGameInfo] = useState({game: null, user: user, correct: null});
+    const initialGameInfo = {game: null, user: user, present: null, correct: null, status: null}
+
+    const [gameInfo, setGameInfo] = useState(initialGameInfo);
     const [timer, setTimer] = useState(60);
     
 
@@ -48,17 +50,23 @@ function GameLayout() {
         const newGameInfo = await API.guessLetter(gameId, letter, cost);
         setGameInfo(newGameInfo);
         setUser(newGameInfo.user);
+
+        newGameInfo.status === 'ended' && endGame();
     }
 
     const guessPhrase = async (gameId, phrase) => {
-        
+        const newGameInfo = await API.guessPhrase(gameId, phrase);
+        setGameInfo(newGameInfo);
+        setUser(newGameInfo.user);
+
+        newGameInfo.status === 'won' && endGame();
     }
 
     const endGame = async () => {
         await API.endGame(gameInfo.game.gameId);
         await API.updateCoins(user?.id, user?.coins);
 
-        setGameInfo({game: null, user: user, correct: null});
+        setGameInfo(initialGameInfo);
 
         user ? 
             navigate(`/users/${user.id}`)
@@ -76,8 +84,6 @@ function GameLayout() {
                 </Col>
                 <Col lg={2}><RightSidebar/></Col>
             </Row>
-            
-                
         </Container>
     )
 }
