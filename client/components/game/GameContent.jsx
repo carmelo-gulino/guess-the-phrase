@@ -4,7 +4,6 @@ import AnswerForm from "./AnswerForm";
 import { useContext, useState } from "react";
 import GameContext from "../../contexts/gameContext";
 import AuthContext from "../../contexts/authContext";
-import GameInput from "./GameInput";
 import GameGrid from "./GameGrid";
 import { ConsonantsList, VowelsList } from "./LetterList";
 
@@ -16,12 +15,14 @@ function GameContent() {
         <>
         <GameActions currentView={currentView} setCurrentView={setCurrentView} setVowelPresent={setVowelPresent} vowelPresent={vowelPresent}/>
         <Row className="align-items-center">
-            <Col><GameGrid/></Col>
+            <Col>
+                <GameAlerts currentView={currentView}/>
+                <GameGrid/>
+            </Col>
         </Row>
         <Row className="align-items-center">
             <Col>
-                <GameAlerts currentView={currentView}/>
-                <GameInput currentView={currentView}/>
+                <GameInput currentView={currentView} setCurrentView={setCurrentView}/>
             </Col>
         </Row>
         </>
@@ -29,7 +30,7 @@ function GameContent() {
 }
 
 function GameActions(props) {
-    const { endGame } = useContext(GameContext);
+    const { setGameInfo } = useContext(GameContext);
 
     const goBackBtn = <Button onClick={() => props.setCurrentView('none')} variant="secondary">Go back</Button>;
     
@@ -51,7 +52,7 @@ function GameActions(props) {
                         : <Button variant="outline-dark" onClick={() => props.setCurrentView('answer')}>Guess the phrase</Button>}
             </Col>
             <Col  className="d-flex justify-content-center">
-                <Button variant="danger" onClick={() => endGame()}>Leave the game</Button>
+                <Button variant="danger" onClick={() => setGameInfo(prev => ({...prev, status: 'ended'}))}>Leave the game</Button>
             </Col>
         </Row>
     )
@@ -62,15 +63,18 @@ function GameAlerts(props) {
     const {gameInfo} = useContext(GameContext);
 
     let alert;
-
-    if (loggedIn && (props.currentView === 'consonants' || props.currentView === 'vowels')) {
-        alert = <Alert className="text-center" variant="warning">If the letter is not present, its cost will be doubled!</Alert>;
-    } else if (gameInfo?.present === false) {
-        alert = <Alert dismissible variant="danger">Nope!</Alert>;
-    } else if (gameInfo?.present === true) {
-        alert = <Alert dismissible variant="success">Ok!</Alert>;
-    } else if (gameInfo?.correct === false) {
-        alert = <Alert dismissible variant="danger">The phrase is not correct!</Alert>;
+    if ((props.currentView === 'consonants' || props.currentView === 'vowels')) {
+        if (loggedIn) {
+            alert = <Alert className="text-center w-25 p-1" variant="warning">If the letter is not present, its cost will be doubled!</Alert>;
+        }
+    } else if (props.currentView === 'none') {
+        if (gameInfo?.present === false) {
+            alert = <Alert className='text-center w-25 p-1' variant='danger'>{gameInfo?.msg}</Alert>;
+        } else if (gameInfo?.present === true) {
+            alert = <Alert className='text-center w-25 p-1' variant='success'>{gameInfo?.msg}</Alert>;
+        } else if (gameInfo?.correct === false) {
+            alert = <Alert className='text-center w-25 p-1' variant="danger">{gameInfo?.msg}</Alert>;
+        }
     }
     
     return(
@@ -83,8 +87,8 @@ function GameInput(props) {
     return(
         <>
         {props.currentView === 'answer' && <AnswerForm setCurrentView={props.setCurrentView}/>}
-        {currentView === 'consonants' && <ConsonantsList setCurrentView={props.setCurrentView}/>}
-        {currentView === 'vowels' && <VowelsList setCurrentView={props.setCurrentView} setVowelPresent={props.setVowelPresent}/>}
+        {props.currentView === 'consonants' && <ConsonantsList setCurrentView={props.setCurrentView}/>}
+        {props.currentView === 'vowels' && <VowelsList setCurrentView={props.setCurrentView} setVowelPresent={props.setVowelPresent}/>}
         </>
     )
 }

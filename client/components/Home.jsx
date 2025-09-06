@@ -1,14 +1,27 @@
 import { useContext } from "react";
 import { Button, Col, Row } from "react-bootstrap";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { LogoutButton } from "./AuthComponent.jsx";
 import AuthContext from "../contexts/authContext";
 
 function Home() {
     const {loggedIn, user} = useContext(AuthContext);
-    
-    const welcomeMessage = loggedIn ? `Welcome, ${user.username}!` : 'Welcome!';
-    const coinsMessage = loggedIn ? `You have ${user.coins} coins.` : 'You are not logged in.'
+
+    const location = useLocation();
+    const gameStatus = location?.state || {gameStatus: null};
+
+    console.log(gameStatus);
+
+    let welcomeMessage = loggedIn ? `Welcome, ${user.username}!` : 'Welcome!';;
+    let coinsMessage = loggedIn ? `You have ${user.coins} coins.` : 'You are not logged in.';
+
+    if (gameStatus.gameStatus === 'won') {
+        welcomeMessage =  "Congratulations!";
+        coinsMessage = loggedIn ? `You won 100 coins, now you have ${user.coins} coins.` : "You can play again or log in and play with coins";
+    } else if (gameStatus.gameStatus === 'timeout') {
+        welcomeMessage =  "You lost!";
+        coinsMessage = loggedIn ? "You didn't lose any coins, try again!" : "You can play again or log in and play with coins";
+    }
     
     const playBtn = loggedIn ? 
         <Button className="btn-lg me-2" as={Link} variant="success" disabled={user.coins == 0} to={`/users/${user.id}/game`}>Play now</Button>

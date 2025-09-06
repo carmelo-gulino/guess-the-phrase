@@ -111,15 +111,17 @@ app.post('/api/games/:gameId/letter', async (req, res) => {
       console.log(user);
     }
 
-    const gameInfo = {
+    const status = user?.coins === 0 ? 'ended' : 'playing';
+    const msg = status === 'playing' && obj.present ? 'Yes!' : 'Nope!';
+
+    res.json({
       game: obj.game,
       user,
       present: obj.present,
       correct: null,
-      status: user?.coins === 0 ? 'ended' : 'playing'
-    }
-
-    res.json(gameInfo);
+      status,
+      msg
+    });
 
   } catch (error) {
     res.status(500).end();
@@ -150,16 +152,17 @@ app.post('/api/games/:gameId/phrase', [
       console.log(user);
     }
 
+    const status = obj.correct ? 'won' : 'playing';
+    const msg = !obj.correct && 'The phrase is not correct';
 
-    const gameInfo = {
+    res.json({
       game: obj.game,
       user,
       present: null,
       correct: obj.correct,
-      status: obj.correct ? 'won' : 'playing'
-    }
-
-    res.json(gameInfo);
+      status,
+      msg,
+    });
 
   } catch (err) {
     res.status(500).end();

@@ -6,7 +6,7 @@ function HomeLayout() {
     return(
         <>
         <Row className="align-items-center">
-            <Col className="d-flex justify-content-center align-items-center"><i className="bi bi-patch-question text-info" style={{ fontSize: "15rem" }}></i></Col>
+            <Col className="d-flex justify-content-center align-items-center"><i className="bi bi-question-octagon-fill text-danger" style={{fontSize: "15rem"}}/></Col>
             <Col><Outlet/></Col>
         </Row>
         </>

@@ -3,7 +3,7 @@ import { Container, Navbar, NavbarBrand } from "react-bootstrap";
 
 function HeaderIcon() {
     return(
-        <i className="bi bi-patch-question-fill text-danger fs-2"></i>
+        <i className="bi bi-question-octagon-fill text-danger fs-2"/>
     )
 }
 

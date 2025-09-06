@@ -14,7 +14,7 @@ function GameLayout() {
 
     const navigate = useNavigate();
 
-    const initialGameInfo = {game: null, user: user, present: null, correct: null, status: null}
+    const initialGameInfo = {game: null, user: user, present: null, correct: null, status: null, msg: null}
 
     const [gameInfo, setGameInfo] = useState(initialGameInfo);
     const [timer, setTimer] = useState(60);
@@ -22,6 +22,8 @@ function GameLayout() {
 
     useEffect(() => {
         let intervalId;
+        gameInfo.status !== null && setGameInfo(initialGameInfo);   //reset prima di iniziare un'altra partita
+
         const startGame = async () => {
             const gameInfo = user ?
                 await API.startGame('normal')
@@ -46,31 +48,31 @@ function GameLayout() {
         };*/
     }, []);
 
+    useEffect(() => {
+        if(gameInfo.status === 'won' || gameInfo.status === 'ended') {
+            endGame();
+        }
+    }, [gameInfo.status]);
+
     const guessLetter = async (gameId, letter, cost) => {
         const newGameInfo = await API.guessLetter(gameId, letter, cost);
         setGameInfo(newGameInfo);
         setUser(newGameInfo.user);
-
-        newGameInfo.status === 'ended' && endGame();
     }
 
     const guessPhrase = async (gameId, phrase) => {
         const newGameInfo = await API.guessPhrase(gameId, phrase);
         setGameInfo(newGameInfo);
         setUser(newGameInfo.user);
-
-        newGameInfo.status === 'won' && endGame();
     }
 
     const endGame = async () => {
         await API.endGame(gameInfo.game.gameId);
         await API.updateCoins(user?.id, user?.coins);
 
-        setGameInfo(initialGameInfo);
-
         user ? 
-            navigate(`/users/${user.id}`)
-            : navigate(`/`);
+            navigate(`/users/${user.id}`, {state: {gameStatus: gameInfo.status}})
+            : navigate(`/`, {state: {gameStatus: gameInfo.status}});
     }
     
     return (

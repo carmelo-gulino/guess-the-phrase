@@ -1,3 +1,8 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { useContext } from "react";
+import { Button, Col, Row } from "react-bootstrap";
+import GameContext from "../../contexts/gameContext";
+
 function ConsonantsList(props) {
 
     const consonants = [
@@ -48,7 +53,7 @@ function LetterActions(props) {
     return(
         <>
         <div className="d-flex">
-            <span className="me-2"><i className="bi bi-coin text-warning fs-3"></i> <strong className="fs-5">{props.cost}</strong></span>
+            <span className="me-2"><i className="bi bi-coin text-warning fs-3"></i> <strong className="fs-5">x{props.cost}:</strong></span>
             {props.letters.map(l => (
               <Button className="me-1" variant="outline-dark" key={ props.type === 'c' ? `consonantsButton-${l}` : `vowelsButton-${l}`} 
                 disabled={gameInfo.game.guessedLetters.includes(l)}
