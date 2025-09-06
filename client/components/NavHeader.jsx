@@ -1,9 +1,9 @@
 import "bootstrap-icons/font/bootstrap-icons.css";
-import { Container, Navbar, NavbarBrand } from "react-bootstrap";
+import { Container, Navbar } from "react-bootstrap";
 
 function HeaderIcon() {
     return(
-        <i className="bi bi-question-octagon-fill text-danger fs-2"/>
+        <i className="bi bi-question-circle-fill text-danger fs-2"/>
     )
 }
 
@@ -13,7 +13,7 @@ function NavHeader() {
         <Navbar expand="lg" bg="info">
             <Container fluid className="align-items-center justify-content-between">
                 <HeaderIcon/>
-                <NavbarBrand><h1 className="fw-bold display-4 text-center">Guess the phrase</h1></NavbarBrand>
+                <h1 className="fw-bold display-4 text-center">Guess the phrase</h1>
                 <HeaderIcon/>
             </Container>
         </Navbar>

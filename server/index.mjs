@@ -75,16 +75,14 @@ app.post('/api/games/start', async (req, res) => {
 
     const newGame = startGame(games.size, phrase);
     games.set(newGame.id, newGame);
-
-    const gameInfo = {
+    
+    res.json({
       game: newGame.gameToJSON(),
-      user: req.user,
       present: null,
       correct: null,
-      status: 'playing'
-    }
-
-    res.json(gameInfo);
+      status: 'playing',
+      msg: null
+    });
 
   } catch (error) {
     res.status(500).end();
@@ -108,19 +106,20 @@ app.post('/api/games/:gameId/letter', async (req, res) => {
       if (user.coins < 0) {
         user.coins = 0;
       }
-      console.log(user);
     }
 
     const status = user?.coins === 0 ? 'ended' : 'playing';
     const msg = status === 'playing' && obj.present ? 'Yes!' : 'Nope!';
 
     res.json({
-      game: obj.game,
-      user,
-      present: obj.present,
-      correct: null,
-      status,
-      msg
+      gameInfo: {
+        game: obj.game,
+        present: obj.present,
+        correct: null,
+        status,
+        msg
+      },
+      user
     });
 
   } catch (error) {
@@ -149,19 +148,20 @@ app.post('/api/games/:gameId/phrase', [
 
     if (obj.correct && user) {
       user.coins += obj.coinDelta;
-      console.log(user);
     }
 
     const status = obj.correct ? 'won' : 'playing';
     const msg = !obj.correct && 'The phrase is not correct';
 
     res.json({
-      game: obj.game,
-      user,
-      present: null,
-      correct: obj.correct,
-      status,
-      msg,
+      gameInfo: {
+        game: obj.game,
+        present: null,
+        correct: obj.correct,
+        status,
+        msg,
+      },
+      user      
     });
 
   } catch (err) {

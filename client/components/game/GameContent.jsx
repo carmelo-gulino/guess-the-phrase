@@ -63,7 +63,7 @@ function GameAlerts(props) {
     const {gameInfo} = useContext(GameContext);
 
     let alert;
-    if ((props.currentView === 'consonants' || props.currentView === 'vowels')) {
+    if (props.currentView === 'consonants' || props.currentView === 'vowels') {
         if (loggedIn) {
             alert = <Alert className="text-center w-25 p-1" variant="warning">If the letter is not present, its cost will be doubled!</Alert>;
         }

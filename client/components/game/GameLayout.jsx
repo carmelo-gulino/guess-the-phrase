@@ -14,10 +14,10 @@ function GameLayout() {
 
     const navigate = useNavigate();
 
-    const initialGameInfo = {game: null, user: user, present: null, correct: null, status: null, msg: null}
+    const initialGameInfo = {game: null, present: null, correct: null, status: null, msg: null}
 
     const [gameInfo, setGameInfo] = useState(initialGameInfo);
-    const [timer, setTimer] = useState(60);
+    const [timer, setTimer] = useState(10);
     
 
     useEffect(() => {
@@ -25,45 +25,52 @@ function GameLayout() {
         gameInfo.status !== null && setGameInfo(initialGameInfo);   //reset prima di iniziare un'altra partita
 
         const startGame = async () => {
-            const gameInfo = user ?
-                await API.startGame('normal')
-                : await API.startGame('easy');
-
+            
+            const gameInfo = user ? await API.startGame('normal') : await API.startGame('easy');
             setGameInfo(gameInfo);
 
             user ?
             navigate(`/users/${user.id}/game/${gameInfo.game.gameId}`)
             : navigate(`/free/game/${gameInfo.game.gameId}`);
            
-            /*intervalId = setInterval(() => {
-                const newTimer = decreaseTimer(timer);
-                setTimer(newTimer);
-                console.log(newTimer);
-            }, 1000);*/
-        }
+            intervalId = setInterval(() => {
+                setTimer(prevTimer => {
+                    const newTimer = decreaseTimer(prevTimer);
+                    newTimer === 0 && setGameInfo(prev => ({...prev, status: 'timeout'}));
+                    return newTimer;
+                });    
+            }, 1000);
+        };
+
         startGame();
-        /*return () => {
+
+        return () => {
             if (intervalId) clearInterval(intervalId);  //quando smonto il componente disattivo il timer
-            console.log("timer fermato");
-        };*/
+        };
     }, []);
 
     useEffect(() => {
-        if(gameInfo.status === 'won' || gameInfo.status === 'ended') {
+        if (gameInfo.status === 'timeout') {
+            if (user) {
+                const newUser = {...user, coins: user.coins-=20};
+                setUser(newUser);
+            }
+            endGame();
+        } else if(gameInfo.status === 'won' || gameInfo.status === 'ended') {
             endGame();
         }
     }, [gameInfo.status]);
 
     const guessLetter = async (gameId, letter, cost) => {
-        const newGameInfo = await API.guessLetter(gameId, letter, cost);
-        setGameInfo(newGameInfo);
-        setUser(newGameInfo.user);
+        const res = await API.guessLetter(gameId, letter, cost);
+        setGameInfo(res.gameInfo);
+        setUser(res.user);
     }
 
     const guessPhrase = async (gameId, phrase) => {
-        const newGameInfo = await API.guessPhrase(gameId, phrase);
-        setGameInfo(newGameInfo);
-        setUser(newGameInfo.user);
+        const res = await API.guessPhrase(gameId, phrase);
+        setGameInfo(res.gameInfo);
+        setUser(res.user);
     }
 
     const endGame = async () => {
@@ -71,8 +78,8 @@ function GameLayout() {
         await API.updateCoins(user?.id, user?.coins);
 
         user ? 
-            navigate(`/users/${user.id}`, {state: {gameStatus: gameInfo.status}})
-            : navigate(`/`, {state: {gameStatus: gameInfo.status}});
+            navigate(`/users/${user.id}`, {state: {status: gameInfo.status}})
+            : navigate(`/`, {state: {status: gameInfo.status}});
     }
     
     return (
