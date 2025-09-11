@@ -8,9 +8,9 @@ function ConsonantsList(props) {
     const consonants = [
         ['Z', 'Q', 'X', 'J', 'K'],
         ['V', 'B', 'P', 'G'],
-        ['F', 'Y', 'W', 'M', 'C'],
-        ['R', 'L', 'D', 'H', 'S'],
-        ['T', 'N']
+        ['F', 'Y', 'W', 'M'],
+        ['R', 'L', 'D', 'C'],
+        ['T', 'N', 'H', 'S']
     ];
 
     return(
@@ -18,7 +18,7 @@ function ConsonantsList(props) {
         {consonants.map((arr, index) => (
             <Row key={`consonantsRow - ${index}`} className="mt-2">
                 <Col>
-                    <LetterActions cost={index+1} letters={arr} type={'c'} setCurrentView={props.setCurrentView}/>
+                    <LetterActions letters={arr} type={'c'} setCurrentView={props.setCurrentView}/>
                 </Col>
             </Row>
         ))}
@@ -34,7 +34,7 @@ function VowelsList(props) {
         <Row>
             <Col>
                 <div className="d-flex">
-                    <LetterActions cost={10} letters={vowels} type={'v'} setCurrentView={props.setCurrentView} setVowelPresent={props.setVowelPresent}/>
+                    <LetterActions letters={vowels} type={'v'} setCurrentView={props.setCurrentView} setVowelPresent={props.setVowelPresent}/>
                 </div>
             </Col>
         </Row>
@@ -44,8 +44,8 @@ function VowelsList(props) {
 function LetterActions(props) {
     const { gameInfo, guessLetter } = useContext(GameContext);
 
-    const onClickLetter = (gameId, letter, cost, type) => {
-        guessLetter(gameId, letter, cost);
+    const onClickLetter = (gameId, letter, type) => {
+        guessLetter(gameId, letter);
         props.setCurrentView('none');
         type === 'v' && props.setVowelPresent(true);
     }
@@ -57,7 +57,7 @@ function LetterActions(props) {
             {props.letters.map(l => (
               <Button className="me-1" variant="outline-dark" key={ props.type === 'c' ? `consonantsButton-${l}` : `vowelsButton-${l}`} 
                 disabled={gameInfo.game.guessedLetters.includes(l)}
-                onClick={() => onClickLetter(gameInfo.game.gameId, l, props.cost, props.type)}>{l}</Button>
+                onClick={() => onClickLetter(gameInfo.game.gameId, l, props.type)}>{l}</Button>
             ))}
         </div>
         </>

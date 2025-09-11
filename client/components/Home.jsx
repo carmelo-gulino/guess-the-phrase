@@ -25,7 +25,7 @@ function Home() {
     }
     
     const playBtn = loggedIn ? 
-        <Button className="btn-lg me-2" as={Link} variant="success" disabled={user.coins == 0} to={`/users/${user.id}/game`}>Play now</Button>
+        <Button className="btn-lg me-2" as={Link} variant="success" disabled={user.coins === 0} to={`/users/${user.id}/game`}>Play now</Button>
         : <Button className="btn-lg me-2 " as={Link} variant="success" to={`/free/game`}>Play now (easy mode)</Button>
 
     const logBtn = loggedIn ?

@@ -1,6 +1,6 @@
 const SERVER_URL = "http://localhost:3001";
 
-const startGame = async (mode) => {
+const startGame = async () => {
     
     const response = await fetch(SERVER_URL + '/api/games/start', {
         method: 'POST',
@@ -8,7 +8,6 @@ const startGame = async (mode) => {
             'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({mode}),
     });
 
     if (response.ok) {
@@ -19,14 +18,14 @@ const startGame = async (mode) => {
     }
 }
 
-const guessLetter = async (gameId, letter, cost) => {
+const guessLetter = async (gameId, letter) => {
     const response = await fetch(SERVER_URL  + `/api/games/${gameId}/letter`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({letter, cost}),
+        body: JSON.stringify({letter}),
     });
 
     if (response.ok) {
@@ -52,36 +51,25 @@ const guessPhrase = async (gameId, phrase) => {
         const gameInfoJSON = await response.json();
         return gameInfoJSON;
     } else {
-        throw new Error("Internal Server Error");   //TODO -> gestione errori       
+        throw new Error("Internal Server Error");
     }
 }
 
-const endGame = async (gameId) => {
+const endGame = async (gameId, gameStatus) => {
     
     const response = await fetch(SERVER_URL + `/api/games/${gameId}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
         },
-        credentials: 'include'
-    });
-
-    if (!response.ok) {
-        throw new Error("Internal Server Error");
-    }
-}
-
-const updateCoins = async (userId, coins) => {
-    const response = await fetch(SERVER_URL  + `/api/users/${userId}/coins`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-        },
         credentials: 'include',
-        body: JSON.stringify({coins}),
+        body: JSON.stringify({gameStatus}),
     });
 
-    if (!response.ok) {
+    if (response.ok) {
+        const updatedUser = await response.json();
+        return updatedUser;
+    } else {
         throw new Error("Internal Server Error");
     }
 }
@@ -114,5 +102,5 @@ const logOut = async() => {
     return null;
 }
 
-const API = { startGame, guessLetter, guessPhrase, updateCoins, endGame, logIn, logOut };
+const API = { startGame, guessLetter, guessPhrase, endGame, logIn, logOut };
 export default API;

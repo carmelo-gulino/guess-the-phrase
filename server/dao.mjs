@@ -7,6 +7,20 @@ const db = new sqlite.Database('GuessThePhrase.sqlite', (err) => {
     }
 });
 
+export const getLetters = () => {
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT * FROM letters';
+        db.all(sql, [], function(err, rows) {
+            if (err) {
+                reject(err);
+            } else {
+                const letters = rows.map(row => ({letter: row.letter, cost: row.cost}));
+                resolve(letters);
+            }
+        })
+    });
+}
+
 /** EASY PHRASE */
 export const getEasyPhrase = () => {
     return new Promise((resolve, reject) => {
@@ -34,6 +48,19 @@ export const getPhrase = () => {
     })
 }
 
+export const updateUser = (userId, coins, game_counter) => {
+    return new Promise((resolve, reject) => {
+        const sql = 'UPDATE users SET coins = ?, game_counter = ? WHERE id = ?';
+        db.run(sql, [coins, game_counter, userId], function(err) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(this.changes);
+            }
+        })
+    });
+}
+
 export const getUser = (username, password) => {
     return new Promise((resolve, reject) => {
         const sql = 'SELECT * FROM users WHERE username = ?';
@@ -43,7 +70,7 @@ export const getUser = (username, password) => {
             } else if (row === undefined) {
                 resolve(false);
             } else {
-                const user = {id: row.id, username: row.username, coins: row.coins};
+                const user = {id: row.id, username: row.username, coins: row.coins, game_counter:row.game_counter};
 
                 crypto.scrypt(password, row.salt, 16, function (err, hashedPassword) {
                     if (err) reject(err);
@@ -56,17 +83,4 @@ export const getUser = (username, password) => {
             }
         });
     });
-}
-
-export const updateCoins = (userId, coins) => {
-    return new Promise((resolve, reject) => {
-        const sql = 'UPDATE users SET coins = ? WHERE id = ?';
-        db.run(sql, [coins, userId], function(err) {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(this.changes);
-            }
-        })
-    })
 }

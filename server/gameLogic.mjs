@@ -5,9 +5,8 @@ export function startGame(size, phrase) {
     return new Game(newId, phrase);
 }
 
-export function guessLetter(game, letter, cost, mode) {
+export function guessLetter(game, letter, cost, user) {
     let present = false;
-    let coinDelta = null;
 
     [...game.phrase].forEach((c, index) => {
         if (c.toUpperCase() === letter.toUpperCase()) {
@@ -18,41 +17,30 @@ export function guessLetter(game, letter, cost, mode) {
 
     game.guessedLetters.push(letter);
 
-    if (mode === 'normal') {
+    if (user) {
         if (present) {
-            coinDelta = -cost;
+            updateUserCoins(user, -cost);
         } else {
-            coinDelta = -2*cost;
+            updateUserCoins(user, -2*coins);
         }
     }
 
-    return {
-        game: game.gameToJSON(),
-        present,
-        coinDelta
-    }
+    return present;
 }
 
 export function guessPhrase(game, phrase, mode) {
     let correct;
-    let coinDelta = null;
 
     if (game.phrase.toUpperCase() === phrase.toUpperCase()) {
         correct = true;
         if (mode === 'normal') {
-            coinDelta = 100;
+            updateUserCoins(user, 100);
         }
     } else {
         correct = false;
     }
 
-    const obj = {
-        game: game.gameToJSON(),
-        correct,
-        coinDelta
-    }
-
-    return obj;
+    return correct;
 }
 
 export function decreaseTimer(timer) {
@@ -61,4 +49,11 @@ export function decreaseTimer(timer) {
     }
 
     return timer;
+}
+
+export function updateUserCoins(user, delta) {
+    user.coins += delta;
+    if (user.coins < 0) {
+        user.coins = 0;
+    }
 }

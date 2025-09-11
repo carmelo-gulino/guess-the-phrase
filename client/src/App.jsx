@@ -13,7 +13,7 @@ import NotFound from '../components/NotFound.jsx';
 
 function App() {
   const [loggedIn, setLoggedIn] =  useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(undefined);
 
   const handleLogin = async (credentials) => {
     try {

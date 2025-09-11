@@ -17,16 +17,15 @@ function GameLayout() {
     const initialGameInfo = {game: null, present: null, correct: null, status: null, msg: null}
 
     const [gameInfo, setGameInfo] = useState(initialGameInfo);
-    const [timer, setTimer] = useState(10);
-    
+    const [timer, setTimer] = useState(60);
 
     useEffect(() => {
         let intervalId;
-        gameInfo.status !== null && setGameInfo(initialGameInfo);   //reset prima di iniziare un'altra partita
+        gameInfo.status !== null && setGameInfo(initialGameInfo);   //reset prima di iniziare un'altra partita (tranne la prima volta)
 
         const startGame = async () => {
             
-            const gameInfo = user ? await API.startGame('normal') : await API.startGame('easy');
+            const gameInfo = await API.startGame();
             setGameInfo(gameInfo);
 
             user ?
@@ -50,19 +49,13 @@ function GameLayout() {
     }, []);
 
     useEffect(() => {
-        if (gameInfo.status === 'timeout') {
-            if (user) {
-                const newUser = {...user, coins: user.coins-=20};
-                setUser(newUser);
-            }
-            endGame();
-        } else if(gameInfo.status === 'won' || gameInfo.status === 'ended') {
-            endGame();
+        if (gameInfo.status === 'timeout' || gameInfo.status === 'won' || gameInfo.status === 'ended') {
+            endGame(); 
         }
     }, [gameInfo.status]);
 
-    const guessLetter = async (gameId, letter, cost) => {
-        const res = await API.guessLetter(gameId, letter, cost);
+    const guessLetter = async (gameId, letter) => {
+        const res = await API.guessLetter(gameId, letter);
         setGameInfo(res.gameInfo);
         setUser(res.user);
     }
@@ -74,8 +67,8 @@ function GameLayout() {
     }
 
     const endGame = async () => {
-        await API.endGame(gameInfo.game.gameId);
-        await API.updateCoins(user?.id, user?.coins);
+        const updatedUser = await API.endGame(gameInfo.game.gameId, gameInfo.status);
+        setUser(updatedUser);
 
         user ? 
             navigate(`/users/${user.id}`, {state: {status: gameInfo.status}})

@@ -22,7 +22,7 @@ function GameContent() {
         </Row>
         <Row className="align-items-center">
             <Col>
-                <GameInput currentView={currentView} setCurrentView={setCurrentView}/>
+                <GameInput setVowelPresent={setVowelPresent} currentView={currentView} setCurrentView={setCurrentView}/>
             </Col>
         </Row>
         </>
@@ -65,15 +65,15 @@ function GameAlerts(props) {
     let alert;
     if (props.currentView === 'consonants' || props.currentView === 'vowels') {
         if (loggedIn) {
-            alert = <Alert className="text-center w-25 p-1" variant="warning">If the letter is not present, its cost will be doubled!</Alert>;
+            alert = <Alert className="text-center w-100 p-1" variant="warning">If the letter is not present, its cost will be doubled!</Alert>;
         }
     } else if (props.currentView === 'none') {
         if (gameInfo?.present === false) {
-            alert = <Alert className='text-center w-25 p-1' variant='danger'>{gameInfo?.msg}</Alert>;
+            alert = <Alert className='text-center w-100 p-1' variant='danger'>{gameInfo?.msg}</Alert>;
         } else if (gameInfo?.present === true) {
-            alert = <Alert className='text-center w-25 p-1' variant='success'>{gameInfo?.msg}</Alert>;
+            alert = <Alert className='text-center w-100 p-1' variant='success'>{gameInfo?.msg}</Alert>;
         } else if (gameInfo?.correct === false) {
-            alert = <Alert className='text-center w-25 p-1' variant="danger">{gameInfo?.msg}</Alert>;
+            alert = <Alert className='text-center w-100 p-1' variant="danger">{gameInfo?.msg}</Alert>;
         }
     }
     
