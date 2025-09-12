@@ -53,15 +53,18 @@ app.use(session({
 
 app.use(passport.authenticate('session'));
 
-/** ENDPOINTS */
-
 //starting a game
 app.post('/api/games/start', async (req, res) => {
   let phrase = '';
+  const user = req.isAuthenticated() && req.user;
+
+  if (user && user.coins === 0) {
+    return res.status(403).json({ msg: 'You need at least one coin to start a game.' });
+  }
 
   try {
 
-    if (req.isAuthenticated()) {
+    if (user) {
       phrase = await getPhrase();
     } else {
       phrase = await getEasyPhrase();
@@ -96,8 +99,13 @@ app.post('/api/games/:gameId/letter', [
     .notEmpty()
     .isLength({min: 1, max: 1})
     .matches(/^[A-Za-z]$/)
-],
-  (req, res) => {
+], (req, res) => {
+  
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({msg: "The phrase can ONLY contain letters, both upper and lower case."});
+  }
+
   try {
     const gameId = parseInt(req.params.gameId);
     const game = games.get(gameId);
@@ -105,13 +113,9 @@ app.post('/api/games/:gameId/letter', [
     const letter = req.body.letter;
     const cost = letters.get(letter);
 
-    const user = req.user;
-
-    console.log(user);
+    const user = req.isAuthenticated() && req.user;
 
     const present = guessLetter(game, letter, cost, user);
-
-        console.log(user);
 
     const status = user?.coins === 0 ? 'ended' : 'playing';
     const msg = status === 'playing' && present ? 'Yes!' : 'Nope!';
@@ -141,13 +145,13 @@ app.post('/api/games/:gameId/phrase', [
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(422).json();
+    return res.status(422).json({msg: "The phrase can ONLY contain letters, both upper and lower case."});
   }
 
   try {
     const game = games.get(parseInt(req.params.gameId));
     const phrase = req.body.phrase;
-    const user = req.user;
+    const user = req.isAuthenticated() && req.user;
 
     const correct = guessPhrase(game, phrase, user);
 
@@ -183,7 +187,7 @@ app.delete('/api/games/:gameId', [
 
   try {
     const gameId = parseInt(req.params.gameId);
-    const user = req.user;
+    const user = req.isAuthenticated() && req.user;
     const gameStatus = req.body.gameStatus;
 
     if (user) {

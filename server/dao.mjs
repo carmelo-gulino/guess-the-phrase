@@ -24,7 +24,7 @@ export const getLetters = () => {
 /** EASY PHRASE */
 export const getEasyPhrase = () => {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT text FROM easyPhrases where id = 1';
+        const sql = 'SELECT text FROM easyPhrases ORDER BY RANDOM() LIMIT 1';
         db.get(sql, [], (err, row) => {
             if (err) {
                 reject(err);
@@ -37,7 +37,7 @@ export const getEasyPhrase = () => {
 
 export const getPhrase = () => {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT text FROM phrases where id = 1';
+        const sql = 'SELECT text FROM phrases ORDER BY RANDOM() LIMIT 1';
         db.get(sql, [], (err, row) => {
             if (err) {
                 reject(err);

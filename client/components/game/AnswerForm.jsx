@@ -17,7 +17,7 @@ function AnswerForm(props) {
             props.setCurrentView('none');
             return phrase;
         } catch (serverError) {
-            return {error: serverError};
+            return {error: serverError.message};
         }
     }
 

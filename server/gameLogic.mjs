@@ -1,4 +1,4 @@
-import Game from "./models/game.mjs";
+import Game from "./gameModel.mjs";
 
 export function startGame(size, phrase) {
     const newId = size + 1;
@@ -28,12 +28,12 @@ export function guessLetter(game, letter, cost, user) {
     return present;
 }
 
-export function guessPhrase(game, phrase, mode) {
+export function guessPhrase(game, phrase) {
     let correct;
 
     if (game.phrase.toUpperCase() === phrase.toUpperCase()) {
         correct = true;
-        if (mode === 'normal') {
+        if (user) {
             updateUserCoins(user, 100);
         }
     } else {

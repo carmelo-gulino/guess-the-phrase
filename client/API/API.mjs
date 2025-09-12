@@ -11,8 +11,7 @@ const startGame = async () => {
     });
 
     if (response.ok) {
-        const gameInfoJSON = await response.json();
-        return gameInfoJSON;
+        return await response.json();
     } else {
         throw new Error("Internal Server Error");
     }
@@ -27,12 +26,17 @@ const guessLetter = async (gameId, letter) => {
         credentials: 'include',
         body: JSON.stringify({letter}),
     });
-
+    
     if (response.ok) {
-        const gameInfoJSON = await response.json();
-        return gameInfoJSON;
+        return await response.json();
     } else {
-        throw new Error("Internal Server Error");   //TODO -> gestione errori       
+        const serverError = await response.json();
+        switch (response.status) {
+            case 422:
+                throw new Error(serverError.msg);          
+            default: 
+                throw new Error("Internal Server Error"); 
+        }
     }
 }
 
@@ -48,10 +52,15 @@ const guessPhrase = async (gameId, phrase) => {
     });
 
     if (response.ok) {
-        const gameInfoJSON = await response.json();
-        return gameInfoJSON;
+        return await response.json();
     } else {
-        throw new Error("Internal Server Error");
+        const serverError = await response.json();
+        switch (response.status) {
+            case 422:
+                throw new Error(serverError.msg);          
+            default: 
+                throw new Error("Internal Server Error"); 
+        }
     }
 }
 
