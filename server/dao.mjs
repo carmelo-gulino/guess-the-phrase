@@ -1,5 +1,6 @@
 import sqlite from 'sqlite3';
 import crypto from 'crypto';
+import Letter from './models/letterModel.mjs';
 
 const db = new sqlite.Database('GuessThePhrase.sqlite', (err) => {
     if (err) {
@@ -14,7 +15,7 @@ export const getLetters = () => {
             if (err) {
                 reject(err);
             } else {
-                const letters = rows.map(row => ({letter: row.letter, cost: row.cost}));
+                const letters = rows.map(row => new Letter(row.type, row.symbol, row.cost));
                 resolve(letters);
             }
         })

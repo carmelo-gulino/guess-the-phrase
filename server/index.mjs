@@ -56,7 +56,7 @@ app.use(passport.authenticate('session'));
 //starting a game
 app.post('/api/games/start', async (req, res) => {
   let phrase = '';
-  const user = req.isAuthenticated() && req.user;
+  const user = req.isAuthenticated() ? req.user : undefined;
 
   if (user && user.coins === 0) {
     return res.status(403).json({ msg: 'You need at least one coin to start a game.' });
@@ -75,15 +75,18 @@ app.post('/api/games/start', async (req, res) => {
 
     if (letters.size === 0) {
       const rawLetters = await getLetters();
-      rawLetters.forEach((l) => letters.set(l.letter, l.cost));
+      rawLetters.forEach((l) => letters.set(l.symbol, l));
     }
 
     res.json({
-      game: newGame.gameToJSON(),
-      present: null,
-      correct: null,
-      status: 'playing',
-      msg: null
+      gameInfo: {
+        game: newGame.gameToJSON(),
+        present: null,
+        correct: null,
+        status: 'playing',
+        msg: null
+      },
+      letters: Array.from(letters.values())
     });
 
   } catch (error) {
@@ -93,18 +96,11 @@ app.post('/api/games/start', async (req, res) => {
 
 //guessing a letter
 app.post('/api/games/:gameId/letter', [
-  check('gameId')
-    .isInt({min: 1}),
   check('letter')
     .notEmpty()
     .isLength({min: 1, max: 1})
-    .matches(/^[A-Za-z]$/)
+    .matches(/[A-Z]/)
 ], (req, res) => {
-  
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(422).json({msg: "The phrase can ONLY contain letters, both upper and lower case."});
-  }
 
   try {
     const gameId = parseInt(req.params.gameId);
@@ -117,7 +113,7 @@ app.post('/api/games/:gameId/letter', [
 
     const present = guessLetter(game, letter, cost, user);
 
-    const status = user?.coins === 0 ? 'ended' : 'playing';
+    const status = 'playing';
     const msg = status === 'playing' && present ? 'Yes!' : 'Nope!';
 
     res.json({
@@ -175,19 +171,11 @@ app.post('/api/games/:gameId/phrase', [
 });
 
 //deleting a game
-app.delete('/api/games/:gameId', [
-  check('gameId')
-    .isInt({min: 1})
-], async (req, res) => {
-
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(422).json();
-  }
+app.delete('/api/games/:gameId', async (req, res) => {
 
   try {
     const gameId = parseInt(req.params.gameId);
-    const user = req.isAuthenticated() && req.user;
+    const user = req.isAuthenticated() ? req.user : undefined;
     const gameStatus = req.body.gameStatus;
 
     if (user) {

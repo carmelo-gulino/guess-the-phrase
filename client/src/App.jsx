@@ -1,19 +1,24 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import DefaultLayout from '../components/DefaultLayout'
-import { Route, Routes } from 'react-router';
+import { Route, Routes, useNavigate } from 'react-router';
 import Home from '../components/Home';
-import HomeLayout from '../components/HomeLayout';
 import {LoginForm} from '../components/AuthComponent.jsx';
-import GameLayout from '../components/game/GameLayout';
 import GameContent from '../components/game/GameContent';
 import AuthContext from '../contexts/authContext.js';
 import { useState } from 'react';
 import API from '../API/API.mjs';
 import NotFound from '../components/NotFound.jsx';
+import GameContext from '../contexts/gameContext.js';
 
 function App() {
   const [loggedIn, setLoggedIn] =  useState(false);
   const [user, setUser] = useState(undefined);
+  const [timer, setTimer] = useState(60);
+
+  const initialGameInfo = {game: null, present: null, correct: null, status: null, msg: null}
+  const [gameInfo, setGameInfo] = useState(initialGameInfo);
+
+  const navigate = useNavigate();
 
   const handleLogin = async (credentials) => {
     try {
@@ -32,27 +37,47 @@ function App() {
     setUser(undefined);
   };
 
+  const guessLetter = async (gameId, letter) => {
+    const res = await API.guessLetter(gameId, letter);
+    setGameInfo(res.gameInfo);
+    setUser(res.user);
+  }
+
+  const guessPhrase = async (gameId, phrase) => {
+    const res = await API.guessPhrase(gameId, phrase);
+    setGameInfo(res.gameInfo);
+    setUser(res.user);
+  }
+
+  const endGame = async () => {
+    const res = await API.endGame(gameInfo.game.gameId, gameInfo.status);
+    const status = gameInfo.status;
+    setGameInfo(initialGameInfo);
+
+    if(res.user) {
+      const user = res.user;
+      setUser(user);
+      navigate(`/users/${user.id}`, {state: {status}})
+    } 
+
+    navigate(`/`, {state: {status}});
+  }
+
   return (
     <>
       <AuthContext.Provider value={{loggedIn, setLoggedIn, user, setUser, handleLogin, handleLogout}}>
-        <Routes>
-          <Route element={<DefaultLayout/>}>
-            <Route element={<HomeLayout/>}>
+        <GameContext.Provider value={{gameInfo, initialGameInfo, setGameInfo, guessLetter, guessPhrase, endGame}}>
+          <Routes>
+            <Route element={<DefaultLayout timer={timer}/>}>
               <Route path='/' element={<Home/>}/>
-              <Route path='/login' element={<LoginForm/>}/>
-              <Route path='/users/:userId' element={<Home/>}/>
-            </Route>
-            <Route element={<GameLayout/>}>
-              <Route path='/users/:userId/game' element={<GameContent/>}>
-                <Route path=':gameId' element={<GameContent/>}/>
+                <Route path='/login' element={<LoginForm/>}/>
+                <Route path='/users/:userId' element={<Home/>}/>
+                <Route path='/users/:userId/game/:gameId?' element={<GameContent timer={timer} setTimer={setTimer}/>}/>
+                <Route path='/free/game/:gameId?' element={<GameContent timer={timer} setTimer={setTimer}/>}/>
+                <Route path='*' element={<NotFound/>}/>
               </Route>
-              <Route path='/free/game' element={<GameContent/>}>
-                <Route path=':gameId' element={<GameContent/>}/>
-              </Route>
-            </Route>
-            <Route path='*' element={<NotFound/>}/>
-          </Route>
-        </Routes>
+          </Routes>
+        </GameContext.Provider>
       </AuthContext.Provider>
     </>
   )

@@ -1,4 +1,4 @@
-import Game from "./gameModel.mjs";
+import Game from "./models/gameModel.mjs";
 
 export function startGame(size, phrase) {
     const newId = size + 1;
@@ -21,7 +21,7 @@ export function guessLetter(game, letter, cost, user) {
         if (present) {
             updateUserCoins(user, -cost);
         } else {
-            updateUserCoins(user, -2*coins);
+            updateUserCoins(user, -2*cost);
         }
     }
 

@@ -30,13 +30,7 @@ const guessLetter = async (gameId, letter) => {
     if (response.ok) {
         return await response.json();
     } else {
-        const serverError = await response.json();
-        switch (response.status) {
-            case 422:
-                throw new Error(serverError.msg);          
-            default: 
-                throw new Error("Internal Server Error"); 
-        }
+        throw new Error("Internal Server Error"); 
     }
 }
 

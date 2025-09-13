@@ -1,15 +1,67 @@
 import "bootstrap-icons/font/bootstrap-icons.css";
-import { Alert, Button, Col, Row, Table } from "react-bootstrap";
-import AnswerForm from "./AnswerForm";
+import { Col, Row } from "react-bootstrap";
 import { useContext, useState } from "react";
 import GameContext from "../../contexts/gameContext";
 import AuthContext from "../../contexts/authContext";
 import GameGrid from "./GameGrid";
-import { ConsonantsList, VowelsList } from "./LetterList";
+import { useNavigate, useParams } from "react-router";
+import { useEffect } from "react";
+import API from "../../API/API.mjs";
+import { decreaseTimer } from "../../../server/gameLogic.mjs";
+import { GameActions, GameAlerts, UserInput } from "./GameInputs";
 
-function GameContent() {
+function GameContent(props) {
     const [currentView, setCurrentView] = useState('none');
     const [vowelPresent, setVowelPresent] = useState(false);
+    const [letters, setLetters] = useState([]);
+
+    const {gameId} = useParams();
+
+    const { user } = useContext(AuthContext);
+    const {gameInfo, setGameInfo, endGame} = useContext(GameContext);
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+
+        const startGame = async () => {
+            
+            const res = await API.startGame();
+            setGameInfo(res.gameInfo);
+            setLetters(res.letters);
+
+            user ?
+            navigate(`/users/${user.id}/game/${res.gameInfo.game.gameId}`)
+            : navigate(`/free/game/${res.gameInfo.game.gameId}`);
+        };
+
+        startGame();
+        
+    }, []);
+
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            props.setTimer(prevTimer => {
+                const newTimer = decreaseTimer(prevTimer);
+                newTimer === 0 && setGameInfo(prev => ({...prev, status: 'timeout'}));
+                return newTimer;
+            });    
+        }, 1000);
+
+        return () => {
+            if (intervalId) {
+                clearInterval(intervalId);
+                props.setTimer(60);
+            };
+        };
+
+    }, [gameId]);
+
+    useEffect(() => {
+        if (gameInfo.status === 'timeout' || gameInfo.status === 'won' || gameInfo.status === 'ended') {
+            endGame(); 
+        }
+    }, [gameInfo.status]);
 
     return (
         <>
@@ -22,73 +74,9 @@ function GameContent() {
         </Row>
         <Row className="align-items-center">
             <Col>
-                <GameInput setVowelPresent={setVowelPresent} currentView={currentView} setCurrentView={setCurrentView}/>
+                <UserInput letters={letters} setVowelPresent={setVowelPresent} currentView={currentView} setCurrentView={setCurrentView}/>
             </Col>
         </Row>
-        </>
-    )
-}
-
-function GameActions(props) {
-    const { setGameInfo } = useContext(GameContext);
-
-    const goBackBtn = <Button onClick={() => props.setCurrentView('none')} variant="secondary">Go back</Button>;
-    
-    return(
-        <Row className="mb-3 align-items-center">
-            <Col className="d-flex justify-content-center">
-                {props.currentView === 'consonants' ?
-                    goBackBtn
-                    : <Button variant="outline-dark" onClick={() => props.setCurrentView('consonants')}>Guess a consonant</Button>}
-            </Col>
-            <Col  className="d-flex justify-content-center">
-                {props.currentView === 'vowels' ?
-                    goBackBtn
-                    : <Button variant="outline-dark" disabled={props.vowelPresent} onClick={() => props.setCurrentView('vowels')}>Guess a vowel</Button>}
-            </Col>
-            <Col  className="d-flex justify-content-center">
-                    {props.currentView === 'answer' ? 
-                        goBackBtn
-                        : <Button variant="outline-dark" onClick={() => props.setCurrentView('answer')}>Guess the phrase</Button>}
-            </Col>
-            <Col  className="d-flex justify-content-center">
-                <Button variant="danger" onClick={() => setGameInfo(prev => ({...prev, status: 'ended'}))}>Leave the game</Button>
-            </Col>
-        </Row>
-    )
-}
-
-function GameAlerts(props) {
-    const {loggedIn} = useContext(AuthContext);
-    const {gameInfo} = useContext(GameContext);
-
-    let alert;
-    if (props.currentView === 'consonants' || props.currentView === 'vowels') {
-        if (loggedIn) {
-            alert = <Alert className="text-center w-100 p-1" variant="warning">If the letter is not present, its cost will be doubled!</Alert>;
-        }
-    } else if (props.currentView === 'none') {
-        if (gameInfo?.present === false) {
-            alert = <Alert className='text-center w-100 p-1' variant='danger'>{gameInfo?.msg}</Alert>;
-        } else if (gameInfo?.present === true) {
-            alert = <Alert className='text-center w-100 p-1' variant='success'>{gameInfo?.msg}</Alert>;
-        } else if (gameInfo?.correct === false) {
-            alert = <Alert className='text-center w-100 p-1' variant="danger">{gameInfo?.msg}</Alert>;
-        }
-    }
-    
-    return(
-        <>{alert}</>
-    )
-}
-
-function GameInput(props) {
-
-    return(
-        <>
-        {props.currentView === 'answer' && <AnswerForm setCurrentView={props.setCurrentView}/>}
-        {props.currentView === 'consonants' && <ConsonantsList setCurrentView={props.setCurrentView}/>}
-        {props.currentView === 'vowels' && <VowelsList setCurrentView={props.setCurrentView} setVowelPresent={props.setVowelPresent}/>}
         </>
     )
 }
