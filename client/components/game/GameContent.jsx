@@ -26,13 +26,17 @@ function GameContent(props) {
 
         const startGame = async () => {
             
-            const res = await API.startGame();
-            setGameInfo(res.gameInfo);
-            setLetters(res.letters);
+            try {
+                const res = await API.startGame();
+                setGameInfo(res.gameInfo);
+                setLetters(res.letters);
 
-            user ?
-            navigate(`/users/${user.id}/game/${res.gameInfo.game.gameId}`)
-            : navigate(`/free/game/${res.gameInfo.game.gameId}`);
+                user ?
+                navigate(`/users/${user.id}/game/${res.gameInfo.game.gameId}`)
+                : navigate(`/free/game/${res.gameInfo.game.gameId}`);
+            } catch (serverError) {
+                user && navigate(`/users/${user.id}`);
+            } 
         };
 
         startGame();
@@ -68,7 +72,7 @@ function GameContent(props) {
         <GameActions currentView={currentView} setCurrentView={setCurrentView} setVowelPresent={setVowelPresent} vowelPresent={vowelPresent}/>
         <Row className="align-items-center">
             <Col>
-                <GameAlerts currentView={currentView}/>
+                <GameAlerts letterError={props.letterError} currentView={currentView}/>
                 <GameGrid/>
             </Col>
         </Row>

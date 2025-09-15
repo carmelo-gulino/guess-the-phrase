@@ -14,6 +14,7 @@ function App() {
   const [loggedIn, setLoggedIn] =  useState(false);
   const [user, setUser] = useState(undefined);
   const [timer, setTimer] = useState(60);
+  const [letterError, setLetterError] = useState(null);
 
   const initialGameInfo = {game: null, present: null, correct: null, status: null, msg: null}
   const [gameInfo, setGameInfo] = useState(initialGameInfo);
@@ -21,14 +22,10 @@ function App() {
   const navigate = useNavigate();
 
   const handleLogin = async (credentials) => {
-    try {
-      const user = await API.logIn(credentials);
-      setLoggedIn(true);
-      setUser(user);
-      return user;
-    }catch(err) {
-      setMessage({msg: err, type: 'danger'});
-    }
+    const user = await API.logIn(credentials);
+    setLoggedIn(true);
+    setUser(user);
+    return user;
   };
 
   const handleLogout = async () => {
@@ -38,9 +35,13 @@ function App() {
   };
 
   const guessLetter = async (gameId, letter) => {
-    const res = await API.guessLetter(gameId, letter);
-    setGameInfo(res.gameInfo);
-    setUser(res.user);
+    try {
+      const res = await API.guessLetter(gameId, letter);
+      setGameInfo(res.gameInfo);
+      setUser(res.user);
+    } catch (serverError) {
+      setLetterError(serverError.message);
+    }
   }
 
   const guessPhrase = async (gameId, phrase) => {
@@ -72,8 +73,8 @@ function App() {
               <Route path='/' element={<Home/>}/>
                 <Route path='/login' element={<LoginForm/>}/>
                 <Route path='/users/:userId' element={<Home/>}/>
-                <Route path='/users/:userId/game/:gameId?' element={<GameContent timer={timer} setTimer={setTimer}/>}/>
-                <Route path='/free/game/:gameId?' element={<GameContent timer={timer} setTimer={setTimer}/>}/>
+                <Route path='/users/:userId/game/:gameId?' element={<GameContent letterError={letterError} timer={timer} setTimer={setTimer}/>}/>
+                <Route path='/free/game/:gameId?' element={<GameContent letterError={letterError} timer={timer} setTimer={setTimer}/>}/>
                 <Route path='*' element={<NotFound/>}/>
               </Route>
           </Routes>

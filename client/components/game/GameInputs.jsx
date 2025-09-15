@@ -45,6 +45,9 @@ function GameAlerts(props) {
             alert = <Alert className="text-center w-100 p-1" variant="warning">If the letter is not present, its cost will be doubled!</Alert>;
         }
     } else if (props.currentView === 'none') {
+        if (props.letterError) {
+            alert = <Alert className='text-center w-100 p-1' variant='danger'>{props.letterError}</Alert>;
+        }
         if (gameInfo?.present === false) {
             alert = <Alert className='text-center w-100 p-1' variant='danger'>{gameInfo?.msg}</Alert>;
         } else if (gameInfo?.present === true) {

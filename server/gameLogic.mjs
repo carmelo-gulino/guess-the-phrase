@@ -11,7 +11,7 @@ export function guessLetter(game, letter, cost, user) {
     [...game.phrase].forEach((c, index) => {
         if (c.toUpperCase() === letter.toUpperCase()) {
             game.revealed[index] = c.toUpperCase();
-            present = true; //se ce n'è anche solo una aggiorno present
+            present = true;
         }
     });
 
@@ -28,10 +28,10 @@ export function guessLetter(game, letter, cost, user) {
     return present;
 }
 
-export function guessPhrase(game, phrase) {
+export function guessPhrase(game, phrase, user) {
     let correct;
 
-    if (game.phrase.toUpperCase() === phrase.toUpperCase()) {
+    if (game.phrase.toUpperCase() === phrase.text.toUpperCase()) {
         correct = true;
         if (user) {
             updateUserCoins(user, 100);

@@ -11,17 +11,19 @@ function Home() {
     const  {status} = location?.state || {};
 
     let welcomeMessage = loggedIn ? `Welcome, ${user.username}!` : 'Welcome!';;
-    let coinsMessage = loggedIn ? `You have ${user.coins} coins.` : 'You are not logged in.';
+    let coinsMessage = loggedIn ? user.coins > 0 ? `You have ${user.coins} coins.` 
+        : `You have ${user.coins} coins: you must logout to play`
+        : `Play now or log in.`
 
     if (status === 'won') {
         welcomeMessage =  "Congratulations!";
-        coinsMessage = loggedIn ? `You won 100 coins, now you have ${user.coins} coins.` : "You can play again or log in and play with coins";
+        coinsMessage = loggedIn ? `You won 100 coins, now you have ${user.coins} coins.` : "You won! Play again or log in and play with coins.";
     } else if (status === 'timeout') {
         welcomeMessage =  "You lost!";
-        coinsMessage = loggedIn ? `You lost 20 coins, now you have ${user.coins} coins.` : "You can play again or log in and play with coins";
+        coinsMessage = loggedIn ? `You lost 20 coins, now you have ${user.coins} coins.` : "You can play again or log in and play with coins.";
     } else if (status === 'ended') {
         welcomeMessage =  "You left!";
-        coinsMessage = loggedIn ? "You didn't lose any coins, try again!" : "You can play again or log in and play with coins";
+        coinsMessage = loggedIn ? `You didn't lose any coins, you have ${user.coins} coins.` : "You can play again or log in and play with coins.";
     }
     
     const playBtn = loggedIn ? 

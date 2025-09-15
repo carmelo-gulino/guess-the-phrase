@@ -13,7 +13,11 @@ const startGame = async () => {
     if (response.ok) {
         return await response.json();
     } else {
-        throw new Error("Internal Server Error");
+        switch (response.status) {
+            case 403: throw new Error();
+
+            default: throw new Error("Internal Server Error");
+        }
     }
 }
 
@@ -30,7 +34,12 @@ const guessLetter = async (gameId, letter) => {
     if (response.ok) {
         return await response.json();
     } else {
-        throw new Error("Internal Server Error"); 
+        const serverError = await response.json();
+        switch (response.status) {
+            case 422: throw new Error(serverError.msg);
+
+            default: throw new Error("Internal Server Error");
+        }
     }
 }
 
@@ -42,7 +51,7 @@ const guessPhrase = async (gameId, phrase) => {
             'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify(phrase),
+        body: JSON.stringify({phrase}),
     });
 
     if (response.ok) {
@@ -50,10 +59,9 @@ const guessPhrase = async (gameId, phrase) => {
     } else {
         const serverError = await response.json();
         switch (response.status) {
-            case 422:
-                throw new Error(serverError.msg);          
-            default: 
-                throw new Error("Internal Server Error"); 
+            case 422: throw new Error(serverError.msg);
+
+            default: throw new Error("Internal Server Error"); 
         }
     }
 }
@@ -70,8 +78,7 @@ const endGame = async (gameId, gameStatus) => {
     });
 
     if (response.ok) {
-        const updatedUser = await response.json();
-        return updatedUser;
+        return await response.json();
     } else {
         throw new Error("Internal Server Error");
     }
@@ -88,8 +95,7 @@ const logIn = async (credentials) => {
     });
 
     if(response.ok) {
-        const user = await response.json();
-        return user;
+        return await response.json();
     } else {
         const errDetails = await response.text();
         throw errDetails;

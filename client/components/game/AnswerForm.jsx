@@ -8,7 +8,7 @@ function AnswerForm(props) {
     const guessPhraseFunction = async (prevState, formData) => {
         const phrase = Object.fromEntries(formData.entries());
         
-        if (phrase.phrase.trim() === '') {
+        if (phrase.text.trim() === '') {
             return {error: "The phrase can't be empty"};
         }
 
@@ -30,7 +30,7 @@ function AnswerForm(props) {
         <Form action={formAction}>
             <FormGroup className="mb-3" controlId="answerTextArea">
                 <FormLabel>Write your answer here</FormLabel>
-                <FormControl name="phrase" type="text" required as="textarea" rows={3} />
+                <FormControl name="text" type="text" required as="textarea" rows={3} />
             </FormGroup>
             <Button variant="success" type="submit" className="me-3">Go!</Button>
             <Button variant="danger" type="cancel">Cancel</Button>

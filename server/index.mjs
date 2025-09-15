@@ -3,7 +3,6 @@ import express from 'express';
 import { getEasyPhrase, getLetters, getPhrase, getUser, updateUser } from './dao.mjs';
 import morgan from 'morgan';
 import cors from 'cors';
-
 import passport from 'passport';
 import LocalStrategy from 'passport-local';
 import session from 'express-session';
@@ -59,7 +58,7 @@ app.post('/api/games/start', async (req, res) => {
   const user = req.isAuthenticated() ? req.user : undefined;
 
   if (user && user.coins === 0) {
-    return res.status(403).json({ msg: 'You need at least one coin to start a game.' });
+    return res.status(403).json();
   }
 
   try {
@@ -102,14 +101,19 @@ app.post('/api/games/:gameId/letter', [
     .matches(/[A-Z]/)
 ], (req, res) => {
 
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({msg: "You must choose exactly ONE letter."});
+  }
+
   try {
     const gameId = parseInt(req.params.gameId);
     const game = games.get(gameId);
 
     const letter = req.body.letter;
-    const cost = letters.get(letter);
+    const cost = letters.get(letter).cost;
 
-    const user = req.isAuthenticated() && req.user;
+    const user = req.isAuthenticated() ? req.user : undefined;
 
     const present = guessLetter(game, letter, cost, user);
 
@@ -147,12 +151,12 @@ app.post('/api/games/:gameId/phrase', [
   try {
     const game = games.get(parseInt(req.params.gameId));
     const phrase = req.body.phrase;
-    const user = req.isAuthenticated() && req.user;
+    const user = req.isAuthenticated() ? req.user : undefined;
 
     const correct = guessPhrase(game, phrase, user);
 
     const status = correct ? 'won' : 'playing';
-    const msg = !correct && 'The phrase is not correct';
+    const msg = !correct ? 'The phrase is not correct' : null;
 
     res.json({
       gameInfo: {

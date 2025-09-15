@@ -11,7 +11,7 @@ function LeftSidebar(props) {
             <Col className="d-flex flex-column justify-content-center align-items-center">
                 {gameInfo.status === 'playing' ? 
                         <><i className="bi bi-stopwatch-fill fs-1"></i>
-                        <h2>{props.timer}</h2></>
+                        <strong className={props.timer < 11 ? 'fs-1 text-danger' : 'fs-1'}>{props.timer}</strong></>
                         : props.icon}
             </Col>
         </Row>

@@ -23,19 +23,19 @@ function CellContent(props) {
     const {gameInfo} = useContext(GameContext);
 
     const index = props.rowIndex*10+props.colIndex;
-    const isBlank = gameInfo?.game?.blanks?.includes(index);
+    const isBlank = gameInfo.game?.blanks.includes(index);
 
     let text;
     if (isBlank) {
         text = ' ';
-    } else if (gameInfo?.game?.revealed?.[index]) {
-        text = gameInfo?.game?.revealed?.[index];
+    } else if (gameInfo.game?.revealed[index]) {
+        text = gameInfo.game.revealed[index];
     } else {
         text = '';
     }
 
     let cellClass = 'text-center align-middle fs-4';
-    if (isBlank || index >= gameInfo?.game?.length) {
+    if (isBlank || index >= gameInfo.game?.length) {
         cellClass = 'text-center align-middle fs-4 bg-secondary';
     }
 
