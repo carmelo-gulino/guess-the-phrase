@@ -5,7 +5,7 @@ import GameContext from "../../contexts/gameContext";
 function GameGrid() {
 
     return (
-        <Table bordered>
+        <Table bordered style={{ tableLayout: 'fixed', width: '100%'}}>
             <tbody>
                 {Array.from({length:5}).map((_, rowIndex) => (
                     <tr key={rowIndex}>
@@ -40,7 +40,7 @@ function CellContent(props) {
     }
 
     return(
-        <td className={cellClass}>{text}</td>        
+        <td className={cellClass} style={{ width: '50px', height: '50px'}}>{text}</td>        
     )
 }
 
