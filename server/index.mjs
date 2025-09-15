@@ -140,12 +140,12 @@ app.post('/api/games/:gameId/letter', [
 app.post('/api/games/:gameId/phrase', [
   check('phrase')
     .notEmpty()
-    .matches(/[A-Za-z]/)
+    .matches(/[A-Za-z\s.,'!?;:-]/)
 ], (req, res) => {
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(422).json({msg: "The phrase can ONLY contain letters, both upper and lower case."});
+    return res.status(422).json({msg: "The phrase can contain ONLY letters, spaces and standard punctuation (.,'!?;:-)."});
   }
 
   try {
