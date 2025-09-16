@@ -56,13 +56,13 @@ function App() {
     const correctPhrase = res.phrase;
     setGameInfo(initialGameInfo);
 
-    if(res.user) {
+    if(loggedIn) {
       const user = res.user;
       setUser(user);
       navigate(`/users/${user.id}`, {state: {status, correctPhrase}})
-    } 
-
-    navigate(`/`, {state: {status, correctPhrase}});
+    } else {
+      navigate(`/`, {state: {status, correctPhrase}});
+    }
   }
 
   return (
