@@ -8,22 +8,30 @@ function Home() {
     const {loggedIn, user} = useContext(AuthContext);
 
     const location = useLocation();
-    const  {status} = location?.state || {};
+    const  {status, correctPhrase} = location?.state || {};
 
-    let welcomeMessage = loggedIn ? `Welcome, ${user.username}!` : 'Welcome!';;
-    let coinsMessage = loggedIn ? user.coins > 0 ? `You have ${user.coins} coins.` 
-        : `You have ${user.coins} coins: you must logout to play`
-        : `Play now or log in.`
+    let welcomeMessage;
+    let coinsMessage; 
 
-    if (status === 'won') {
-        welcomeMessage =  "Congratulations!";
-        coinsMessage = loggedIn ? `You won 100 coins, now you have ${user.coins} coins.` : "You won! Play again or log in and play with coins.";
-    } else if (status === 'timeout') {
-        welcomeMessage =  "You lost!";
-        coinsMessage = loggedIn ? `You lost 20 coins, now you have ${user.coins} coins.` : "You can play again or log in and play with coins.";
-    } else if (status === 'ended') {
-        welcomeMessage =  "You left!";
-        coinsMessage = loggedIn ? `You didn't lose any coins, you have ${user.coins} coins.` : "You can play again or log in and play with coins.";
+    switch (status) {
+        case 'won':
+            welcomeMessage =  "Congratulations!";
+            coinsMessage = loggedIn ? `You won 100 coins, now you have ${user.coins} coins` : "You won! Play again or log in and play with coins";
+            break;
+        case 'timeout':
+            welcomeMessage =  "You lost!";
+            coinsMessage = loggedIn ? `You lost 20 coins, now you have ${user.coins} coins` : "You can play again or log in and play with coins";
+            break;
+        case 'ended':
+            welcomeMessage =  "You left!";
+            coinsMessage = loggedIn ? `You didn't lose any coins, you have ${user.coins} coins` : "You can play again or log in and play with coins";
+            break;
+        default:
+            welcomeMessage =  loggedIn ? `Welcome ${user.username}!` : "Welcome!";
+            coinsMessage = loggedIn ? 
+            user.coins > 0 ? `You have ${user.coins} coins.` : `You have ${user.coins} coins: you must logout to play`
+            : `Play now or log in.`
+            break;
     }
     
     const playBtn = loggedIn ? 
@@ -37,8 +45,9 @@ function Home() {
     return(
         <>
         <Row><Col><h1 className="fw-bold">{welcomeMessage}</h1></Col></Row>
-        <Row className="lead"><Col><p>{coinsMessage}</p></Col></Row>
-        <Row><Col><p>{playBtn}{logBtn}</p></Col></Row>
+        {status && <Row className="lead"><Col>The phrase was: "{<span><strong>{correctPhrase}</strong></span>}"</Col></Row>}
+        <Row className="lead"><Col>{coinsMessage}</Col></Row>
+        <Row className="mt-3"><Col>{playBtn}{logBtn}</Col></Row>
         </>
     )
 }

@@ -53,15 +53,16 @@ function App() {
   const endGame = async () => {
     const res = await API.endGame(gameInfo.game.gameId, gameInfo.status);
     const status = gameInfo.status;
+    const correctPhrase = res.phrase;
     setGameInfo(initialGameInfo);
 
     if(res.user) {
       const user = res.user;
       setUser(user);
-      navigate(`/users/${user.id}`, {state: {status}})
+      navigate(`/users/${user.id}`, {state: {status, correctPhrase}})
     } 
 
-    navigate(`/`, {state: {status}});
+    navigate(`/`, {state: {status, correctPhrase}});
   }
 
   return (

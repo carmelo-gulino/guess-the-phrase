@@ -196,11 +196,14 @@ app.delete('/api/games/:gameId', async (req, res) => {
       user.game_counter += 1;
       await updateUser(user.id, user.coins, user.game_counter);
     }
+
+    const phrase = games.get(gameId).phrase;
     
     games.delete(gameId);
 
     res.json({
-      user
+      user,
+      phrase
     });
     
   } catch (err) {

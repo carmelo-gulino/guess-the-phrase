@@ -33,7 +33,7 @@ function AnswerForm(props) {
                 <FormControl name="text" type="text" required as="textarea" rows={3} />
             </FormGroup>
             <Button variant="success" type="submit" className="me-3">Go!</Button>
-            <Button variant="danger" type="cancel">Cancel</Button>
+            <Button variant="danger" type="reset">Cancel</Button>
         </Form>
         </>
     )
