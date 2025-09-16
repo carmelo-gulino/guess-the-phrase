@@ -150,7 +150,8 @@ to `/users/:userId/game` and then to `/users/:userId/game/:gameId` once the `gam
         "username": "carmelogulino",
         "coins": 50,
         "game_counter": 3
-      }
+      },
+      "phrase": "Mary had a little lamb"
     }
     ```
 
