@@ -1,13 +1,11 @@
-import { useActionState, useContext } from "react";
+import { useActionState } from "react";
 import { Alert, Button, Col, Form, Row } from "react-bootstrap";
 import { Link, useNavigate } from "react-router";
-import AuthContext from "../contexts/authContext";
 
-function LoginForm() {
+function LoginForm(props) {
 
     const [state, formAction, isPending] = useActionState(loginFunction, {username: '', password: ''});
     const navigate = useNavigate();
-    const { handleLogin } = useContext(AuthContext);
 
     async function loginFunction(prevState, formData) {
         const credentials = {
@@ -20,7 +18,7 @@ function LoginForm() {
         }
         
         try {
-            const user = await handleLogin(credentials);
+            const user = await props.handleLogin(credentials);
             navigate(`/users/${user.id}`);
         } catch (error) {
             return { error: 'Wrong username or password.' };
@@ -63,10 +61,9 @@ function LoginForm() {
 
 function LogoutButton(props) {
     const navigate = useNavigate();
-    const { handleLogout } = useContext(AuthContext);
 
     return(
-        <Button onClick={() => {handleLogout(); navigate('/');}} className="btn-lg" variant="warning">Logout</Button>
+        <Button onClick={() => {props.handleLogout(); navigate('/');}} className="btn-lg" variant="warning">Logout</Button>
     )
 }
 

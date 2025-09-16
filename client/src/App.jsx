@@ -67,13 +67,13 @@ function App() {
 
   return (
     <>
-      <AuthContext.Provider value={{loggedIn, setLoggedIn, user, setUser, handleLogin, handleLogout}}>
+      <AuthContext.Provider value={{loggedIn, user, setUser}}>
         <GameContext.Provider value={{gameInfo, initialGameInfo, setGameInfo, guessLetter, guessPhrase, endGame}}>
           <Routes>
             <Route element={<DefaultLayout timer={timer}/>}>
               <Route path='/' element={<Home/>}/>
-                <Route path='/login' element={<LoginForm/>}/>
-                <Route path='/users/:userId' element={<Home/>}/>
+                <Route path='/login' element={<LoginForm handleLogin={handleLogin}/>}/>
+                <Route path='/users/:userId' element={<Home handleLogout={handleLogout}/>}/>
                 <Route path='/users/:userId/game/:gameId?' element={<GameContent letterError={letterError} timer={timer} setTimer={setTimer}/>}/>
                 <Route path='/free/game/:gameId?' element={<GameContent letterError={letterError} timer={timer} setTimer={setTimer}/>}/>
                 <Route path='*' element={<NotFound/>}/>

@@ -17,7 +17,7 @@ function GameContent(props) {
 
     const {gameId} = useParams();
 
-    const { user } = useContext(AuthContext);
+    const {loggedIn, user } = useContext(AuthContext);
     const {gameInfo, setGameInfo, endGame} = useContext(GameContext);
 
     const navigate = useNavigate();
@@ -31,11 +31,11 @@ function GameContent(props) {
                 setGameInfo(res.gameInfo);
                 setLetters(res.letters);
 
-                user ?
+                loggedIn ?
                 navigate(`/users/${user.id}/game/${res.gameInfo.game.gameId}`)
                 : navigate(`/free/game/${res.gameInfo.game.gameId}`);
             } catch (serverError) {
-                user && navigate(`/users/${user.id}`);
+                loggedIn && navigate(`/users/${user.id}`);
             } 
         };
 

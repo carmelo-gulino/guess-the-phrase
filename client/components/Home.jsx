@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router";
 import { LogoutButton } from "./AuthComponent.jsx";
 import AuthContext from "../contexts/authContext";
 
-function Home() {
+function Home(props) {
     const {loggedIn, user} = useContext(AuthContext);
 
     const location = useLocation();
@@ -39,7 +39,7 @@ function Home() {
         : <Button className="btn-lg me-2 " as={Link} variant="success" to={`/free/game`}>Play now (easy mode)</Button>
 
     const logBtn = loggedIn ?
-        <LogoutButton /> :
+        <LogoutButton handleLogout={props.handleLogout} /> :
         <Button className="btn-lg" as={Link} variant="warning" to="/login">Log in</Button>
 
     return(
