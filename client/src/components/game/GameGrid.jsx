@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { Table } from "react-bootstrap";
-import GameContext from "../../contexts/gameContext";
+import GameContext from "../../../contexts/gameContext";
 
 function GameGrid() {
 

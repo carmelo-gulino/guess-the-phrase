@@ -1,6 +1,6 @@
 import { useContext } from "react";
-import GameContext from "../../contexts/gameContext";
-import AuthContext from "../../contexts/authContext";
+import GameContext from "../../../contexts/gameContext";
+import AuthContext from "../../../contexts/authContext";
 import { Alert, Button, Col, Row } from "react-bootstrap";
 import { ConsonantsList, VowelsList } from "./LetterList";
 import AnswerForm from "./AnswerForm";

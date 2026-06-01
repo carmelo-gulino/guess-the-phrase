@@ -1,13 +1,13 @@
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { Col, Row } from "react-bootstrap";
 import { useContext, useState } from "react";
-import GameContext from "../../contexts/gameContext";
-import AuthContext from "../../contexts/authContext";
+import GameContext from "../../../contexts/gameContext";
+import AuthContext from "../../../contexts/authContext";
 import GameGrid from "./GameGrid";
 import { useNavigate, useParams } from "react-router";
 import { useEffect } from "react";
-import API from "../../API/API.mjs";
-import { decreaseTimer } from "../../../server/gameLogic.mjs";
+import API from "../../../API/API.mjs";
+import { decreaseTimer } from "../../../../server/gameLogic.mjs";
 import { GameActions, GameAlerts, UserInput } from "./GameInputs";
 
 function GameContent(props) {

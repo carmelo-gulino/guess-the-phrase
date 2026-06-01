@@ -1,6 +1,6 @@
 import { useActionState, useContext } from "react";
 import { Alert, Button, Form, FormControl, FormGroup, FormLabel } from "react-bootstrap";
-import GameContext from "../../contexts/gameContext";
+import GameContext from "../../../contexts/gameContext";
 
 function AnswerForm(props) {
     const { gameInfo, guessPhrase } = useContext(GameContext);

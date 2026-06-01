@@ -1,8 +1,8 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useContext } from "react";
 import { Button, Col, Row } from "react-bootstrap";
-import GameContext from "../../contexts/gameContext";
-import AuthContext from '../../contexts/authContext';
+import GameContext from "../../../contexts/gameContext";
+import AuthContext from '../../../contexts/authContext';
 
 function ConsonantsList(props) {
 
